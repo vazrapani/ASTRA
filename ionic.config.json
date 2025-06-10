@@ -1,0 +1,7 @@
+{
+  "name": "astra-tarot",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
