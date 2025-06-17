@@ -29,3 +29,7 @@ yarn-error.log*
 
 # Optional eslint cache
 .eslintcache
+
+# Sensitive files
+functions/astrt-e152b-firebase-adminsdk-fbsvc-2fb6bdceae.json
+sendgrid.env
