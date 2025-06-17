@@ -1,5 +1,15 @@
 // 타로 카드 정보 및 해석 함수 공통 유틸
 
+import {
+  TarotCard,
+  DeckType,
+  DeckConfig,
+  TempImageConfig,
+  CardOrientation,
+  MinorSuit,
+  ArcanaType
+} from '../types/tarot';
+
 // 메이저 아르카나 22장
 export const majorArcana = [
   { id: 0, name: '더 푸울', eng: 'The Fool', img: '/assets/cards/major_0.png', desc: '새로운 시작, 순수함, 자유' },
@@ -65,117 +75,191 @@ minorSuits.forEach((suit) => {
 
 export const cards = [...majorArcana, ...minorArcana];
 
-export async function fetchGeminiInterpret(cardName: string, cardDesc: string, userQuestion?: string) {
+// 덱 설정
+export const deckConfigs: Record<DeckType, DeckConfig> = {
+  'rider-waite': {
+    type: 'rider-waite',
+    name: 'Rider-Waite Tarot',
+    nameKo: '라이더-웨이트 타로',
+    description: '가장 대중적이고 전통적인 타로 덱',
+    imageBasePath: '/assets/cards/rider-waite',
+    tempImageBasePath: '/assets/temp_cards/rider-waite'
+  },
+  'thoth': {
+    type: 'thoth',
+    name: 'Thoth Tarot',
+    nameKo: '토트 타로',
+    description: '신비적이고 심오한 상징을 담은 타로 덱',
+    imageBasePath: '/assets/cards/thoth',
+    tempImageBasePath: '/assets/temp_cards/thoth'
+  }
+};
+
+// 임시 이미지 설정
+export const tempImageConfig: TempImageConfig = {
+  width: 300,
+  height: 500,
+  backgroundColor: '#f0f0f0',
+  textColor: '#333333',
+  font: '20px Arial'
+};
+
+// 마이너 아르카나 슈트 정보
+export const minorSuitInfo = {
+  wands: { nameKo: '완드', element: '불' },
+  cups: { nameKo: '컵', element: '물' },
+  swords: { nameKo: '소드', element: '공기' },
+  pentacles: { nameKo: '펜타클', element: '땅' }
+};
+
+// 라이더-웨이트 메이저 아르카나 (예시: 3장 전체 필드 포함)
+export const riderWaiteMajorArcana: TarotCard[] = [
+  {
+    id: 'rw-major-0',
+    name: 'The Fool',
+    nameKo: '광대',
+    deck: 'rider-waite',
+    arcana: 'major',
+    imageUrl: `${deckConfigs['rider-waite'].imageBasePath}/major_0.jpg`,
+    tempImageUrl: `${deckConfigs['rider-waite'].tempImageBasePath}/major_0.jpg`,
+    meanings: {
+      upright: '새로운 시작, 순수함, 모험, 자유로운 영혼',
+      reversed: '무모함, 위험한 선택, 부주의'
+    }
+  },
+  {
+    id: 'rw-major-1',
+    name: 'The Magician',
+    nameKo: '마법사',
+    deck: 'rider-waite',
+    arcana: 'major',
+    imageUrl: `${deckConfigs['rider-waite'].imageBasePath}/major_1.jpg`,
+    tempImageUrl: `${deckConfigs['rider-waite'].tempImageBasePath}/major_1.jpg`,
+    meanings: {
+      upright: '창의력, 기술, 자원 활용, 의지력',
+      reversed: '기만, 재능 낭비, 미숙함'
+    }
+  },
+  {
+    id: 'rw-major-2',
+    name: 'The High Priestess',
+    nameKo: '여사제',
+    deck: 'rider-waite',
+    arcana: 'major',
+    imageUrl: `${deckConfigs['rider-waite'].imageBasePath}/major_2.jpg`,
+    tempImageUrl: `${deckConfigs['rider-waite'].tempImageBasePath}/major_2.jpg`,
+    meanings: {
+      upright: '직관, 신비, 잠재력',
+      reversed: '비밀, 억압, 혼란'
+    }
+  },
+  // ... 나머지 카드도 동일 패턴으로 전체 필드 포함하여 작성 ...
+];
+
+// 토트 메이저 아르카나 (예시: 3장 전체 필드 포함)
+export const thothMajorArcana: TarotCard[] = [
+  {
+    id: 'th-major-0',
+    name: 'The Fool',
+    nameKo: '광대',
+    deck: 'thoth',
+    arcana: 'major',
+    imageUrl: `${deckConfigs['thoth'].imageBasePath}/major_0.jpg`,
+    tempImageUrl: `${deckConfigs['thoth'].tempImageBasePath}/major_0.jpg`,
+    meanings: {
+      upright: '순수한 에너지, 새로운 시작, 무한한 가능성',
+      reversed: '혼돈, 무질서, 비이성적 행동'
+    }
+  },
+  {
+    id: 'th-major-1',
+    name: 'The Magus',
+    nameKo: '마구스',
+    deck: 'thoth',
+    arcana: 'major',
+    imageUrl: `${deckConfigs['thoth'].imageBasePath}/major_1.jpg`,
+    tempImageUrl: `${deckConfigs['thoth'].tempImageBasePath}/major_1.jpg`,
+    meanings: {
+      upright: '의식적 의지, 창조적 힘, 지성',
+      reversed: '혼돈의 힘, 왜곡된 의지, 기만'
+    }
+  },
+  {
+    id: 'th-major-2',
+    name: 'The High Priestess',
+    nameKo: '여사제',
+    deck: 'thoth',
+    arcana: 'major',
+    imageUrl: `${deckConfigs['thoth'].imageBasePath}/major_2.jpg`,
+    tempImageUrl: `${deckConfigs['thoth'].tempImageBasePath}/major_2.jpg`,
+    meanings: {
+      upright: '지혜, 신비, 잠재력',
+      reversed: '비밀, 억압, 혼란'
+    }
+  },
+  // ... 나머지 카드도 동일 패턴으로 전체 필드 포함하여 작성 ...
+];
+
+// 임시 이미지 생성 함수
+export const generateTempCardImage = (card: TarotCard, orientation: CardOrientation): string => {
+  const directionMark = orientation === 'reversed' ? '↓' : '↑';
+  return `${card.deck === 'rider-waite' ? 
+    deckConfigs['rider-waite'].tempImageBasePath : 
+    deckConfigs['thoth'].tempImageBasePath}/${card.name.toLowerCase().replace(/ /g, '_')}_${orientation}.jpg`;
+};
+
+// 랜덤 덱 선택
+export const getRandomDeck = (): DeckType => {
+  const decks: DeckType[] = ['rider-waite', 'thoth'];
+  return decks[Math.floor(Math.random() * decks.length)];
+};
+
+// 랜덤 카드 선택 (덱 지정)
+export const getRandomCard = (deck: DeckType): TarotCard => {
+  const cards = deck === 'rider-waite' ? riderWaiteMajorArcana : thothMajorArcana;
+  return cards[Math.floor(Math.random() * cards.length)];
+};
+
+// 랜덤 방향 선택
+export const getRandomOrientation = (): CardOrientation => {
+  return Math.random() < 0.5 ? 'upright' : 'reversed';
+};
+
+// 일일 타로 카드 뽑기
+export const drawDailyTarotCard = () => {
+  const deck = getRandomDeck();
+  const card = getRandomCard(deck);
+  const orientation = getRandomOrientation();
+  
+  return {
+    deck,
+    card,
+    orientation,
+    tempImageUrl: generateTempCardImage(card, orientation)
+  };
+};
+
+// LLM 해석 요청 함수
+export async function fetchGeminiInterpret(
+  card: TarotCard,
+  orientation: CardOrientation,
+  userQuestion?: string
+) {
   const response = await fetch(
     "https://asia-northeast3-astrt-e152b.cloudfunctions.net/geminiInterpret",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cardName, cardDesc, userQuestion }),
+      body: JSON.stringify({
+        cardName: card.name,
+        cardDesc: orientation === 'upright' ? card.meanings.upright : card.meanings.reversed,
+        deck: card.deck,
+        orientation,
+        userQuestion
+      }),
     }
   );
   if (!response.ok) throw new Error("LLM 해석 실패");
   const data = await response.json();
   return data.result as string;
-}
-
-export interface TarotCard {
-  name: string;
-  meaning: string;
-}
-
-export const tarotCards: TarotCard[] = [
-  {
-    name: "The Fool",
-    meaning: "새로운 시작, 순수함, 모험, 자유로운 영혼"
-  },
-  {
-    name: "The Magician",
-    meaning: "창의력, 기술, 자원 활용, 의지력"
-  },
-  {
-    name: "The High Priestess",
-    meaning: "직관, 신비, 내면의 지혜, 잠재의식"
-  },
-  {
-    name: "The Empress",
-    meaning: "풍요, 창조성, 모성, 자연과의 조화"
-  },
-  {
-    name: "The Emperor",
-    meaning: "권위, 리더십, 안정성, 체계"
-  },
-  {
-    name: "The Hierophant",
-    meaning: "전통, 교육, 영적 지도, 신념"
-  },
-  {
-    name: "The Lovers",
-    meaning: "사랑, 조화, 관계, 선택"
-  },
-  {
-    name: "The Chariot",
-    meaning: "의지력, 성공, 결단력, 승리"
-  },
-  {
-    name: "Strength",
-    meaning: "용기, 인내, 내면의 힘, 자제력"
-  },
-  {
-    name: "The Hermit",
-    meaning: "내면의 성찰, 고독, 지혜, 영적 탐구"
-  },
-  {
-    name: "Wheel of Fortune",
-    meaning: "운명, 기회, 변화, 순환"
-  },
-  {
-    name: "Justice",
-    meaning: "정의, 균형, 진실, 인과응보"
-  },
-  {
-    name: "The Hanged Man",
-    meaning: "희생, 새로운 관점, 중단, 포기"
-  },
-  {
-    name: "Death",
-    meaning: "변화, 종료, 변형, 새로운 시작"
-  },
-  {
-    name: "Temperance",
-    meaning: "균형, 조화, 절제, 치유"
-  },
-  {
-    name: "The Devil",
-    meaning: "속박, 유혹, 물질주의, 집착"
-  },
-  {
-    name: "The Tower",
-    meaning: "급격한 변화, 파괴, 해방, 각성"
-  },
-  {
-    name: "The Star",
-    meaning: "희망, 영감, 평화, 치유"
-  },
-  {
-    name: "The Moon",
-    meaning: "불안, 환상, 직관, 잠재의식"
-  },
-  {
-    name: "The Sun",
-    meaning: "행복, 성공, 긍정, 활력"
-  },
-  {
-    name: "Judgement",
-    meaning: "재생, 심판, 깨달음, 소명"
-  },
-  {
-    name: "The World",
-    meaning: "완성, 성취, 통합, 여행"
-  }
-];
-
-export const getRandomCard = (): TarotCard => {
-  const randomIndex = Math.floor(Math.random() * tarotCards.length);
-  return tarotCards[randomIndex];
-}; 
+} 

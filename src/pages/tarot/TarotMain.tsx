@@ -1,10 +1,23 @@
 import React, { useEffect } from 'react';
-import { IonPage, IonContent, IonList, IonItem, IonLabel, IonIcon, IonBadge } from '@ionic/react';
-import { timeOutline, gridOutline } from 'ionicons/icons';
+import {
+  IonPage,
+  IonContent,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonIcon,
+  IonButton,
+  useIonToast
+} from '@ionic/react';
+import {
+  gridOutline,
+  chevronForward
+} from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { setDailyTarotResult } from '../../store/slices/tarotSlice';
-import { getDailyTarotStatus } from '../../services/firebase/tarotService';
+import tarotService from '../../services/firebase/tarotService';
+import { getRandomDeck, getRandomCard, getRandomOrientation } from '../../utils/tarotCards';
 import CommonHeader from '../../components/CommonHeader';
 import styles from './TarotMain.module.css';
 
@@ -18,21 +31,62 @@ const TarotMain: React.FC<TarotMainProps> = ({ unreadCount = 0, onClickNotificat
   const dispatch = useAppDispatch();
   const user = useAppSelector(state => state.auth.user);
   const { isDailyAvailable } = useAppSelector(state => state.tarot.dailyTarotStatus);
+  const [present] = useIonToast();
 
   useEffect(() => {
     const checkDailyStatus = async () => {
       if (!user?.uid) return;
-      
       try {
-        const status = await getDailyTarotStatus(user.uid);
+        const status = await tarotService.getDailyTarotStatus(user.uid);
         dispatch(setDailyTarotResult(status));
       } catch (error) {
         console.error('Error checking daily tarot status:', error);
+        present({
+          message: '일일 타로 상태를 확인하는 중 오류가 발생했습니다.',
+          duration: 2000,
+          position: 'bottom',
+          color: 'danger'
+        });
       }
     };
 
     checkDailyStatus();
-  }, [dispatch, user?.uid]);
+  }, [user?.uid, dispatch, present]);
+
+  const handleDailyTarotClick = async () => {
+    if (!user?.uid) return;
+    
+    try {
+      if (isDailyAvailable) {
+        // 새로운 타로 카드 뽑기
+        const deck = getRandomDeck();
+        const card = getRandomCard(deck);
+        const orientation = getRandomOrientation();
+        const interpretation = orientation === 'upright' 
+          ? card.meanings.upright 
+          : card.meanings.reversed;
+
+        const result = await tarotService.saveDailyTarotReading(
+          user.uid,
+          deck,
+          card,
+          orientation,
+          interpretation
+        );
+        
+        dispatch(setDailyTarotResult({ isDailyAvailable: false, result }));
+      }
+      history.push('/tabs/tarot/daily');
+    } catch (error) {
+      console.error('Error handling daily tarot:', error);
+      present({
+        message: '일일 타로를 처리하는 중 오류가 발생했습니다.',
+        duration: 2000,
+        position: 'bottom',
+        color: 'danger'
+      });
+    }
+  };
 
   return (
     <IonPage>
@@ -44,28 +98,32 @@ const TarotMain: React.FC<TarotMainProps> = ({ unreadCount = 0, onClickNotificat
       <IonContent>
         <div className={styles.container}>
           <IonList>
-            <IonItem button onClick={() => history.push('/tabs/tarot/daily')} className={styles.dailyItem}>
-              <IonIcon icon={timeOutline} slot="start" />
+            <IonItem 
+              className={styles.dailyItem} 
+              onClick={handleDailyTarotClick}
+              detail={false}
+            >
               <IonLabel>
                 <div className={styles.labelContainer}>
                   <h2>일일 타로</h2>
-                  <IonBadge 
-                    color={isDailyAvailable ? "success" : "medium"}
-                    className={styles.statusBadge}
-                  >
-                    {isDailyAvailable ? "가능" : "완료"}
-                  </IonBadge>
+                  <span className={styles.statusChip}>
+                    {isDailyAvailable ? '가능' : '완료'}
+                  </span>
                 </div>
-                <p>매일 00시에 새로운 타로 카드를 확인하세요</p>
+                <p>{isDailyAvailable ? '오늘의 타로를 확인해보세요' : '오늘의 타로를 이미 확인했습니다'}</p>
               </IonLabel>
+              <IonButton fill="clear" slot="end">
+                <IonIcon icon={chevronForward} slot="icon-only" />
+              </IonButton>
             </IonItem>
-            <IonItem button onClick={() => history.push('/tabs/tarot/spread')}>
+            <IonItem button routerLink="/tabs/tarot/spread" className={styles.spreadItem} detail={true}>
               <IonIcon icon={gridOutline} slot="start" />
               <IonLabel>
-                <h2>타로 (스프레드)</h2>
+                <h2>타로 스프레드</h2>
                 <p>다양한 스프레드로 타로 리딩을 시작하세요</p>
               </IonLabel>
             </IonItem>
+            {/* 필요시 추가 기능(내 기록 등)도 아래에 추가 가능 */}
           </IonList>
         </div>
       </IonContent>

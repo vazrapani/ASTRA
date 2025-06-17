@@ -1,5 +1,7 @@
 .container {
-  padding: 16px;
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .container ion-list {
@@ -59,4 +61,195 @@
 
 .dailyItem h2 {
   margin: 0;
+}
+
+.dailyPreviewCard {
+  margin-bottom: 1.5rem;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.dailyPreviewContent {
+  padding: 0.5rem;
+}
+
+.dailyStatus {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dailyIcon {
+  font-size: 2rem;
+  color: var(--ion-color-primary);
+}
+
+.dailyInfo h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.dailyInfo p {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+  color: var(--ion-color-medium);
+}
+
+.dailyResult {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cardPreview {
+  width: 100px;
+  height: 177.78px; /* 9:16 aspect ratio */
+  background-color: var(--ion-color-light);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.previewImage.reversed {
+  transform: rotate(180deg);
+}
+
+.cardInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.cardTitle h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.deckBadge {
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.cardType {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ion-color-medium);
+}
+
+.previewButton {
+  width: 100%;
+  margin: 0;
+  --padding-top: 0.5rem;
+  --padding-bottom: 0.5rem;
+}
+
+.dailyTarotSection {
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.dailyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.dailyHeader h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.statusBadge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.available {
+  background-color: var(--ion-color-success);
+  color: white;
+}
+
+.completed {
+  background-color: var(--ion-color-medium);
+  color: white;
+}
+
+.dailyButton {
+  width: 100%;
+  margin: 8px 0 0 0;
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.spreadItem {
+  --background: var(--ion-color-light);
+  --border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.spreadItem ion-icon {
+  color: var(--ion-color-primary);
+}
+
+.spreadItem h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.spreadItem p {
+  font-size: 0.9rem;
+  color: var(--ion-color-medium);
+  margin: 4px 0 0 0;
+}
+
+.menuSection {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.menuHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.menuHeader h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.menuButton {
+  margin: 0;
+  --border-radius: 8px;
 } 

@@ -1,20 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface TarotCard {
-  id: number;
-  name: string;
-  imageUrl: string;
-  meaning: string;
-  reversedMeaning: string;
-}
-
-interface DailyTarotResult {
-  card: {
-    name: string;
-    meaning: string;
-  };
-  date: Date;
-}
+import { TarotCard, DailyTarotResult } from '../../types/tarot';
 
 interface DailyTarotStatus {
   isDailyAvailable: boolean;

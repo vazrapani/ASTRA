@@ -1,11 +1,20 @@
 .container {
   padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.headerTitle {
+.header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .statusComplete,
@@ -47,21 +56,25 @@
   border-radius: 8px;
 }
 
-.cardContainer {
+.statusChip {
+  margin: 0;
+}
+
+.loadingContainer {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px 0;
+  height: 100%;
 }
 
-.cardContainer h2 {
-  color: #333;
-  margin-bottom: 16px;
+.drawSection {
+  text-align: center;
+  padding: 2rem;
 }
 
-.cardContainer p {
-  color: #666;
-  margin-bottom: 32px;
+.drawSection p {
+  margin-bottom: 1.5rem;
+  color: var(--ion-color-medium);
 }
 
 .drawButton {
@@ -69,100 +82,93 @@
   margin: 0 auto;
 }
 
-.resultCard {
-  margin: 24px;
+.cardResult {
+  margin: 1rem 0;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.cardSvgWrapper {
-  display: flex;
-  justify-content: center;
-  padding: 24px;
-  background-color: #f5f5f5;
-  border-radius: 16px 16px 0 0;
+  overflow: hidden;
 }
 
 .cardTitle {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 16px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
 }
 
-.cardDirection {
-  font-size: 16px;
-  color: #666;
+.cardDeck {
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 12px;
 }
 
-.cardDesc {
-  color: #666;
-  margin-bottom: 24px;
-  line-height: 1.6;
+.cardImageContainer {
+  position: relative;
+  width: 100%;
+  padding-top: 177.78%; /* 9:16 aspect ratio */
+  background-color: var(--ion-color-light);
 }
 
-.loadingWrapper {
-  text-align: center;
-  padding: 24px;
+.cardImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
 }
 
-.loadingText {
-  color: #666;
-  margin-bottom: 16px;
+.cardImage.reversed {
+  transform: rotate(180deg);
 }
 
-.interpretationBox {
-  background-color: #f5f5f5;
-  padding: 16px;
+.cardInfo {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: var(--ion-color-light);
   border-radius: 8px;
-  margin-top: 24px;
 }
 
-.interpretationBox b {
-  display: block;
-  margin-bottom: 8px;
-  color: #333;
-}
-
-.interpretationText {
-  color: #444;
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-.headerContainer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.statusContainer {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 16px;
-}
-
-.statusChip {
+.cardType {
   margin: 0;
-  font-size: 12px;
-  height: 24px;
-  padding: 0 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  font-size: 0.9rem;
+  color: var(--ion-color-medium);
 }
 
-.statusChip ion-icon {
-  font-size: 16px;
-  margin-right: 2px;
+.cardOrientation {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9rem;
+  color: var(--ion-color-medium);
+}
+
+.interpretation {
+  background: #23272f;
+  color: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.interpretation h2 {
+  margin: 0 0 16px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.interpretation p {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--ion-color-medium);
 }
 
 .resultContainer {
-  padding: 16px;
-  background: var(--ion-color-light);
-  border-radius: 8px;
-  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
 }
 
 .emptyContainer {
@@ -218,26 +224,24 @@
   text-align: center;
 }
 
-.interpretation {
-  white-space: pre-line;
-}
-
-.interpretation p {
-  margin: 10px 0;
-  line-height: 1.6;
-}
-
 .messageContainer {
   text-align: center;
-  margin-top: 20px;
+  padding: 40px 20px;
+}
+
+.messageContainer h2 {
+  margin: 0 0 16px 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
 }
 
 .messageContainer p {
+  margin: 0 0 24px 0;
   color: var(--ion-color-medium);
-  margin-bottom: 16px;
 }
 
-.loadingContainer {
-  text-align: center;
-  padding: 40px 0;
+.startButton {
+  margin: 0;
+  --border-radius: 8px;
 } 

@@ -9,134 +9,135 @@ import {
   query,
   where,
   getDocs,
-  addDoc
+  addDoc,
+  Timestamp,
+  onSnapshot
 } from 'firebase/firestore';
-import { Timestamp } from 'firebase/firestore';
+import {
+  TarotCard,
+  DeckType,
+  CardOrientation,
+  DailyTarotResult
+} from '../../types/tarot';
+import {
+  getRandomDeck,
+  getRandomCard,
+  getRandomOrientation,
+  generateTempCardImage
+} from '../../utils/tarotCards';
 
-// 오늘의 타로 관련 타입
-interface DailyTarotResult {
-  date: string;  // YYYY-MM-DD 형식
-  cardIndex: number;
-  interpretation: string;
-  createdAt: any;  // Firestore Timestamp
-}
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1초
 
 interface DailyTarotStatus {
   isDailyAvailable: boolean;
-  result: {
-    card: {
-      name: string;
-      meaning: string;
-    };
-    date: Date;
-  } | null;
+  result: DailyTarotResult | null;
 }
 
 class TarotService {
-  public getDailyTarotRef(userId: string) {
+  private subscriptions: { [key: string]: () => void } = {};
+
+  private async retryOperation<T>(operation: () => Promise<T>, retries = MAX_RETRIES): Promise<T> {
+    try {
+      return await operation();
+    } catch (error) {
+      if (retries > 0) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+        return this.retryOperation(operation, retries - 1);
+      }
+      throw error;
+    }
+  }
+
+  private getDailyTarotRef(userId: string) {
     return doc(collection(doc(db, 'users', userId), 'dailyTarotResult'), 'current');
   }
 
-  // 오늘의 타로 초기화 여부 확인
-  async checkDailyTarotReset(userId: string): Promise<boolean> {
-    const today = new Date().toISOString().split('T')[0];
-    const dailyTarotRef = this.getDailyTarotRef(userId);
-    const dailyTarotDoc = await getDoc(dailyTarotRef);
-
-    if (!dailyTarotDoc.exists()) {
-      return true;  // 첫 사용자는 초기화 필요
+  // 실시간 업데이트 구독
+  public subscribeToDailyTarot(userId: string, callback: (result: DailyTarotResult | null) => void) {
+    if (this.subscriptions[userId]) {
+      this.subscriptions[userId]();
     }
 
-    const data = dailyTarotDoc.data() as DailyTarotResult;
-    return data.date !== today;
+    const ref = this.getDailyTarotRef(userId);
+    this.subscriptions[userId] = onSnapshot(ref, (snapshot) => {
+      if (snapshot.exists()) {
+        callback(snapshot.data() as DailyTarotResult);
+      } else {
+        callback(null);
+      }
+    }, (error) => {
+      console.error('Error subscribing to daily tarot:', error);
+      callback(null);
+    });
   }
 
-  // 오늘의 타로 초기화
-  async resetDailyTarot(userId: string) {
-    const today = new Date().toISOString().split('T')[0];
-    const needsReset = await this.checkDailyTarotReset(userId);
+  // 구독 해제
+  public unsubscribeFromDailyTarot(userId: string) {
+    if (this.subscriptions[userId]) {
+      this.subscriptions[userId]();
+      delete this.subscriptions[userId];
+    }
+  }
 
-    if (needsReset) {
+  // 오늘의 타로 상태 확인
+  async getDailyTarotStatus(userId: string): Promise<DailyTarotStatus> {
+    return this.retryOperation(async () => {
+      try {
+        const dailyTarotRef = this.getDailyTarotRef(userId);
+        const dailyTarotDoc = await getDoc(dailyTarotRef);
+        
+        if (!dailyTarotDoc.exists()) {
+          return { isDailyAvailable: true, result: null };
+        }
+
+        const data = dailyTarotDoc.data() as DailyTarotResult;
+        const today = new Date().toISOString().split('T')[0];
+        
+        if (data.date !== today) {
+          return { isDailyAvailable: true, result: null };
+        }
+
+        return {
+          isDailyAvailable: false,
+          result: data
+        };
+      } catch (error) {
+        console.error('Error getting daily tarot status:', error);
+        throw error;
+      }
+    });
+  }
+
+  // 오늘의 타로 저장
+  async saveDailyTarotReading(
+    userId: string,
+    deck: DeckType,
+    card: TarotCard,
+    orientation: CardOrientation,
+    interpretation: string
+  ): Promise<DailyTarotResult> {
+    return this.retryOperation(async () => {
+      const today = new Date().toISOString().split('T')[0];
       const dailyTarotRef = this.getDailyTarotRef(userId);
       
-      await setDoc(dailyTarotRef, {
+      const result: DailyTarotResult = {
+        userId,
         date: today,
-        cardIndex: this.getRandomCardIndex(),
-        interpretation: '',
-        createdAt: serverTimestamp()
-      });
+        deck,
+        card,
+        orientation,
+        interpretation,
+        tempImageUrl: generateTempCardImage(card, orientation)
+      };
 
-      return true;
-    }
-
-    return false;
-  }
-
-  private getRandomCardIndex(): number {
-    // TODO: 실제 타로 카드 데이터와 연동
-    return Math.floor(Math.random() * 78);  // 타로 카드는 총 78장
+      await setDoc(dailyTarotRef, result);
+      return result;
+    });
   }
 }
 
 export const tarotService = new TarotService();
 
-export const getDailyTarotStatus = async (userId: string): Promise<DailyTarotStatus> => {
-  try {
-    // 서버 시간 기준으로 오늘 날짜의 시작과 끝 계산
-    const now = Timestamp.now();
-    const today = new Date(now.toDate());
-    today.setHours(0, 0, 0, 0);
-    
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const dailyReadingsRef = collection(db, 'readings');
-    const dailyQuery = query(
-      dailyReadingsRef,
-      where('userId', '==', userId),
-      where('type', '==', 'daily'),
-      where('createdAt', '>=', Timestamp.fromDate(today)),
-      where('createdAt', '<', Timestamp.fromDate(tomorrow))
-    );
-
-    const querySnapshot = await getDocs(dailyQuery);
-    const dailyReading = querySnapshot.docs[0]?.data();
-
-    return {
-      isDailyAvailable: querySnapshot.empty,
-      result: dailyReading ? {
-        card: {
-          name: dailyReading.card.name,
-          meaning: dailyReading.card.meaning
-        },
-        date: dailyReading.createdAt.toDate()
-      } : null
-    };
-  } catch (error) {
-    console.error('Error checking daily tarot status:', error);
-    throw error;
-  }
-};
-
-export const saveDailyTarotReading = async (userId: string, cardData: any): Promise<{ card: any; date: Date }> => {
-  try {
-    const readingsRef = collection(db, 'readings');
-    const reading = {
-      userId,
-      type: 'daily',
-      card: cardData,
-      createdAt: serverTimestamp(),
-    };
-
-    // Add the reading document
-    await addDoc(readingsRef, reading);
-
-    return {
-      card: cardData,
-      date: new Date()
-    };
-  } catch (error) {
-    console.error('Error saving daily tarot reading:', error);
-    throw error;
-  }
-}; 
+// 메서드를 직접 export하지 않고, 클래스 인스턴스만 export
+export default tarotService; 
