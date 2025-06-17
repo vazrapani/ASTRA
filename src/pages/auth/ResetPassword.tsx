@@ -9,6 +9,7 @@ import {
 import { useHistory } from 'react-router-dom';
 import { resetPassword } from '../../services/firebase/auth';
 import { CustomButton, CustomInput } from '../../components';
+import styles from './ResetPassword.module.css';
 
 const ResetPassword: React.FC = () => {
   const history = useHistory();
@@ -51,11 +52,15 @@ const ResetPassword: React.FC = () => {
             onChange={e => setEmail(e.target.value)}
             type="email"
           />
-          <CustomButton text={loading ? '전송 중...' : '재설정 링크 보내기'} type="submit" />
+          <CustomButton type="submit">
+            {loading ? '전송 중...' : '재설정 링크 보내기'}
+          </CustomButton>
         </form>
-        <CustomButton text="로그인으로 돌아가기" onClick={() => history.push('/auth/login')} />
-        {message && <div style={{ color: 'green', marginTop: 16 }}>{message}</div>}
-        {error && <div style={{ color: 'red', marginTop: 16 }}>{error}</div>}
+        <CustomButton onClick={() => history.push('/auth/login')}>
+          로그인으로 돌아가기
+        </CustomButton>
+        {message && <div className={styles.resetMsg}>{message}</div>}
+        {error && <div className={styles.resetError}>{error}</div>}
       </IonContent>
     </IonPage>
   );

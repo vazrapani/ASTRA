@@ -1,0 +1,43 @@
+.loginBox {
+  max-width: 340px;
+  margin: 0 auto;
+  margin-top: 40px;
+}
+.btnGoogle {
+  width: 100%;
+  margin-bottom: 8px;
+  background: #fff;
+  color: #222;
+  border: 1px solid #ccc;
+}
+.btnNaver {
+  width: 100%;
+  margin-bottom: 8px;
+  background: #03c75a;
+  color: #fff;
+}
+.btnKakao {
+  width: 100%;
+  margin-bottom: 8px;
+  background: #fee500;
+  color: #222;
+}
+.btnLine {
+  width: 100%;
+  margin-bottom: 8px;
+  background: #00c300;
+  color: #fff;
+}
+.btnGuest {
+  width: 100%;
+  margin-bottom: 8px;
+  background: #f5f5fa;
+  color: #6c47ff;
+  border: 1px solid #6c47ff;
+}
+.loginError {
+  color: red;
+  margin-top: 24px;
+  text-align: center;
+  font-weight: 600;
+} 

@@ -1,0 +1,31 @@
+.readingSearchBarRoot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.readingSearchBarInput {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+}
+.readingSearchBarBtn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: #6c47ff;
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+.readingSearchBarResult {
+  margin-left: 8px;
+  font-size: 0.95em;
+  color: #666;
+}
+.readingSearchBarArrow {
+  margin-left: 4px;
+  font-size: 1em;
+} 

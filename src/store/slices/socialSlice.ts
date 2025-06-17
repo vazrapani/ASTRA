@@ -16,10 +16,33 @@ interface Message {
   isRead: boolean;
 }
 
+interface Feed {
+  id: string;
+  friendId: string;
+  card: string;
+  summary: string;
+  emoji: string;
+  comments: Comment[];
+}
+
+interface Comment {
+  id: string;
+  userId: string;
+  content: string;
+  createdAt: Date;
+}
+
+interface Reaction {
+  feedId: string;
+  userId: string;
+  emoji: string;
+}
+
 interface SocialState {
   friends: Friend[];
   messages: Message[];
   selectedFriend: Friend | null;
+  feeds: Feed[];
   isLoading: boolean;
   error: string | null;
 }
@@ -28,6 +51,7 @@ const initialState: SocialState = {
   friends: [],
   messages: [],
   selectedFriend: null,
+  feeds: [],
   isLoading: false,
   error: null,
 };
@@ -60,6 +84,21 @@ const socialSlice = createSlice({
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
+    addFeed: (state, action: PayloadAction<Feed>) => {
+      state.feeds.push(action.payload);
+    },
+    addComment: (state, action: PayloadAction<{ feedId: string; comment: Comment }>) => {
+      const feed = state.feeds.find(f => f.id === action.payload.feedId);
+      if (feed) {
+        feed.comments.push(action.payload.comment);
+      }
+    },
+    addReaction: (state, action: PayloadAction<Reaction>) => {
+      const feed = state.feeds.find(f => f.id === action.payload.feedId);
+      if (feed) {
+        feed.emoji = action.payload.emoji;
+      }
+    },
   },
 });
 
@@ -72,6 +111,9 @@ export const {
   setSelectedFriend,
   setLoading,
   setError,
+  addFeed,
+  addComment,
+  addReaction,
 } = socialSlice.actions;
 
 export default socialSlice.reducer; 

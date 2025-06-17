@@ -1,0 +1,58 @@
+.card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 16px;
+  margin: 12px 0;
+  transition: box-shadow 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 20px;
+  border: 1px solid #eee;
+}
+
+.info {
+  flex: 1;
+}
+
+.nickname {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.email {
+  color: #888;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.credits {
+  color: #4a90e2;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.inactive {
+  opacity: 0.5;
+  pointer-events: none;
+  filter: grayscale(0.7);
+}
+
+.inactiveText {
+  color: #e74c3c;
+  font-size: 0.95rem;
+  margin-top: 4px;
+  font-weight: bold;
+} 

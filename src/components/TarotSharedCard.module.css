@@ -1,0 +1,101 @@
+.cardWrapper {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95em;
+  color: #888;
+  margin-bottom: 8px;
+}
+.sharer {
+  font-weight: 600;
+}
+.date {
+  font-size: 0.9em;
+}
+.content {
+  margin-bottom: 16px;
+  font-size: 1.1em;
+  color: #333;
+}
+.ratingSection {
+  margin-bottom: 12px;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+}
+.star {
+  color: #ccc;
+  font-size: 1.3em;
+  cursor: pointer;
+  margin-right: 2px;
+  transition: color 0.2s;
+}
+.starActive {
+  color: #FFD600;
+  font-size: 1.3em;
+  cursor: pointer;
+  margin-right: 2px;
+}
+.ratingAvg {
+  margin-left: 8px;
+  color: #888;
+  font-size: 0.95em;
+}
+.emojiSection {
+  margin-bottom: 12px;
+  display: flex;
+  gap: 10px;
+}
+.emojiBtn {
+  font-size: 1.2em;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+}
+.emojiCount {
+  font-size: 0.95em;
+  color: #888;
+  margin-left: 2px;
+}
+.commentSection {
+  margin-top: 8px;
+}
+.commentList {
+  margin-bottom: 8px;
+}
+.commentItem {
+  font-size: 0.98em;
+  margin-bottom: 4px;
+  color: #444;
+}
+.commentInputBox {
+  display: flex;
+  gap: 6px;
+}
+.commentInput {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 1em;
+}
+.commentBtn {
+  background: #6c47ff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.commentBtn:hover {
+  background: #4b2fd6;
+} 

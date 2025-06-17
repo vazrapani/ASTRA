@@ -1,0 +1,106 @@
+.notificationItem {
+  padding: 16px;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.notificationItem:hover {
+  background-color: #2a2a2a;
+}
+
+.notificationContent {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.textContent {
+  flex: 1;
+}
+
+.notificationTitle {
+  font-weight: 500;
+  margin: 0 0 4px;
+  color: #cccccc;
+}
+
+.notificationMessage {
+  margin: 0 0 4px;
+  color: #999;
+  font-size: 14px;
+}
+
+.notificationTime {
+  font-size: 12px;
+  color: #888;
+}
+
+/* 읽지 않은 알림 스타일 */
+.unread {
+  background-color: rgba(0, 128, 255, 0.1);
+}
+
+.unread .notificationTitle {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.unread .notificationMessage {
+  color: #cccccc;
+}
+
+/* 읽은 알림 스타일 */
+.read {
+  background-color: transparent;
+}
+
+.read .notificationTitle {
+  color: #888;
+}
+
+.read .notificationMessage {
+  color: #666;
+}
+
+.read .notificationTime {
+  color: #666;
+}
+
+/* 알림 아이콘 스타일 */
+.notificationIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.friendRequestIcon {
+  background-color: #4a90e2;
+}
+
+.dailyTarotIcon {
+  background-color: #9b59b6;
+}
+
+.readingSharedIcon {
+  background-color: #2ecc71;
+}
+
+.systemNoticeIcon {
+  background-color: #e74c3c;
+}
+
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  background-color: #0080ff;
+  border-radius: 50%;
+  margin-top: 6px;
+} 

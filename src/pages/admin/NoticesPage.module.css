@@ -1,0 +1,59 @@
+.notice-list-card {
+  margin-bottom: 16px;
+}
+.notice-title {
+  font-weight: bold;
+  font-size: 18px;
+}
+.notice-meta {
+  font-size: 12px;
+  color: #888;
+}
+.notice-content {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.marginBottom16 {
+  margin-bottom: 16px;
+}
+
+.marginBottom8 {
+  margin-bottom: 8px;
+}
+
+.flexGap8 {
+  display: flex;
+  gap: 8px;
+}
+
+.fontSize12 {
+  font-size: 12px;
+}
+
+.fontGray {
+  color: #888;
+}
+
+.marginRight8 {
+  margin-right: 8px;
+}
+
+.mb8 {
+  margin-bottom: 8px;
+}
+.mb16 {
+  margin-bottom: 16px;
+}
+.mb12 {
+  margin-bottom: 12px;
+}
+.font12 {
+  font-size: 12px;
+}
+.mt8 {
+  margin-top: 8px;
+}
+.mt16 {
+  margin-top: 16px;
+} 

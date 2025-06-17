@@ -1,0 +1,40 @@
+.readingListItemRoot {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  gap: 16px;
+}
+.readingListItemImage {
+  width: 48px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #eee;
+}
+.readingListItemInfo {
+  flex: 1;
+}
+.readingListItemDate {
+  font-weight: 600;
+  font-size: 1.05em;
+  margin-bottom: 4px;
+}
+.readingListItemQuestion {
+  color: #333;
+  font-size: 0.98em;
+  margin-bottom: 4px;
+}
+.readingListItemCardCount {
+  color: #888;
+  font-size: 0.95em;
+}
+.readingListItemRating {
+  color: #f6b800;
+  font-weight: 600;
+  font-size: 1.1em;
+} 

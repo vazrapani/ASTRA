@@ -15,6 +15,7 @@ import {
   IonButtons,
   IonProgressBar,
 } from '@ionic/react';
+import styles from './TarotReading.module.css';
 
 const TarotReading: React.FC = () => {
   const [step, setStep] = useState(1);
@@ -34,7 +35,7 @@ const TarotReading: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/tarot" />
+            <IonBackButton defaultHref="/tabs/tarot" />
           </IonButtons>
           <IonTitle>타로 리딩</IonTitle>
         </IonToolbar>
@@ -59,7 +60,7 @@ const TarotReading: React.FC = () => {
                         <img 
                           src={`/assets/cards/back.png`} 
                           alt={`Card ${i + 1}`}
-                          style={{ width: '100%' }}
+                          className={styles.cardImg}
                         />
                       </IonCardContent>
                     </IonCard>
@@ -82,7 +83,7 @@ const TarotReading: React.FC = () => {
                         <img 
                           src={`/assets/cards/${cardIndex + 1}.png`} 
                           alt={`Selected Card ${index + 1}`}
-                          style={{ width: '100%' }}
+                          className={styles.cardImg}
                         />
                         <h3>카드 {index + 1}</h3>
                         <p>카드 해석이 여기에 표시됩니다</p>

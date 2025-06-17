@@ -46,4 +46,14 @@ ion-header ion-toolbar {
 ion-title {
   font-size: 1.5rem;
   font-weight: 700;
+}
+
+ion-toolbar {
+  --min-height: 44px;
+  --height: 44px;
+  --ion-toolbar-height: 44px;
+  min-height: 44px;
+  height: 44px;
+  padding-left: 0;
+  padding-right: 0;
 } 

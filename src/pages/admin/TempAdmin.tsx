@@ -1,7 +1,8 @@
 import React from 'react';
+import styles from './TempAdmin.module.css';
 
 const TempAdmin: React.FC = () => (
-  <div style={{ textAlign: 'center', padding: '2em' }}>
+  <div className={styles.centerBox}>
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="4" y="4" width="16" height="16" rx="4" stroke="#6c47ff" strokeWidth="2" fill="#f5f5fa" />
       <path d="M8 12h8" stroke="#6c47ff" strokeWidth="2" strokeLinecap="round"/>

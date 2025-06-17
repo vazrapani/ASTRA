@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonList, IonItem, IonLabel, IonRadioGroup, IonRadio, IonText, IonBackButton } from '@ionic/react';
+import React from 'react';
+import { IonPage, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonList, IonItem, IonLabel, IonRadioGroup, IonRadio, IonText } from '@ionic/react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { setSpread } from '../../store/slices/tarotSlice';
+import CommonHeader from '../../components/CommonHeader';
+import styles from './SpreadSelect.module.css';
 
 const spreads = [
   { key: 'one', name: '1장 뽑기', desc: '간단한 상황, 빠른 조언이 필요할 때' },
@@ -8,18 +13,19 @@ const spreads = [
   { key: 'celtic', name: '10장 켈틱 크로스', desc: '복잡한 문제, 인생의 큰 전환점 등' },
 ];
 
-const SpreadSelect: React.FC = () => {
-  const [selected, setSelected] = useState('three');
-  const [autoRecommended] = useState('three'); // 실제 LLM 추천값으로 대체 가능
+interface SpreadSelectProps {
+  unreadCount: number;
+  onClickNotification: () => void;
+}
+
+const SpreadSelect: React.FC<SpreadSelectProps> = ({ unreadCount, onClickNotification }) => {
+  const dispatch = useDispatch();
+  const selected = useSelector((state: RootState) => state.tarot.spread) || 'three';
+  const [autoRecommended] = React.useState('three'); // 실제 LLM 추천값으로 대체 가능
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonBackButton defaultHref="/tarot/question" />
-          <IonTitle>스프레드 선택</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <CommonHeader title="스프레드 선택" backHref="/tabs/tarot" unreadCount={unreadCount} onClickNotification={onClickNotification} />
       <IonContent className="ion-padding">
         <IonCard color="light">
           <IonCardHeader>
@@ -33,7 +39,7 @@ const SpreadSelect: React.FC = () => {
           </IonCardContent>
         </IonCard>
         <IonList>
-          <IonRadioGroup value={selected} onIonChange={e => setSelected(e.detail.value)}>
+          <IonRadioGroup value={selected} onIonChange={e => dispatch(setSpread(e.detail.value))}>
             {spreads.map(spread => (
               <IonItem key={spread.key}>
                 <IonLabel>
@@ -46,7 +52,8 @@ const SpreadSelect: React.FC = () => {
             ))}
           </IonRadioGroup>
         </IonList>
-        <IonButton expand="block" style={{marginTop: 24}} routerLink="/tarot/pick">계속</IonButton>
+        <IonButton expand="block" className={styles.pickButton} routerLink="/tabs/tarot/pick">카드 뽑기 시작</IonButton>
+        <IonButton expand="block" className={styles.backButton} routerLink="/tabs/tarot/question">질문 입력으로 돌아가기</IonButton>
       </IonContent>
     </IonPage>
   );

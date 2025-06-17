@@ -1,28 +1,119 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonText, IonBackButton, IonList, IonItem, IonLabel, IonTextarea, IonInput } from '@ionic/react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { addReading, setSharedReading } from '../../services/firebase/readingService';
+import { v4 as uuidv4 } from 'uuid';
+import CommonHeader from '../../components/CommonHeader';
+import styles from './Result.module.css';
+import FriendSelectModal from '../../components/FriendSelectModal';
+import { useHistory } from 'react-router-dom';
 
-const dummyCards = [
-  { id: 1, name: '더 푸울', position: '정방향', desc: '새로운 시작, 순수함, 자유' },
-  { id: 2, name: '더 매지션', position: '역방향', desc: '의지 부족, 혼란' },
-  { id: 3, name: '더 하이프리스트리스', position: '정방향', desc: '직관, 신비, 잠재력' },
-];
+interface ResultProps {
+  unreadCount: number;
+  onClickNotification: () => void;
+}
 
-const Result: React.FC = () => {
+const Result: React.FC<ResultProps> = ({ unreadCount, onClickNotification }) => {
+  const question = useSelector((state: RootState) => state.tarot.question);
+  const category = useSelector((state: RootState) => state.tarot.category);
+  const spread = useSelector((state: RootState) => state.tarot.spread);
+  const selectedCards = useSelector((state: RootState) => state.tarot.selectedCards);
+  const interpretation = useSelector((state: RootState) => state.tarot.interpretation);
+  console.log('interpretation:', interpretation);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const savedRef = useRef(false);
+  const [showFriendModal, setShowFriendModal] = React.useState(false);
+  const [sharing, setSharing] = React.useState(false);
+  const [shareError, setShareError] = React.useState<string | null>(null);
+  const history = useHistory();
+  // TODO: 실제 친구 목록을 store/props에서 받아와야 함. 임시 데이터로 대체
+  const friends = [
+    { id: 'friend1', nickname: '친구1' },
+    { id: 'friend2', nickname: '친구2' },
+  ];
+
+  useEffect(() => {
+    if (!user?.uid || !question || !selectedCards.length || savedRef.current) return;
+    // Firestore에 기록 저장
+    const readingId = uuidv4();
+    const now = Date.now();
+    const reading = {
+      readingId,
+      userId: user.uid,
+      initialQuestion: question,
+      spreadType: spread,
+      cardsDrawn: selectedCards.map((c: any, idx: number) => ({
+        name: c.name,
+        direction: 'upright' as 'upright', // TODO: 실제 방향 정보 반영
+        imageUrl: c.imageUrl || '',
+        position: idx + 1,
+      })),
+      representativeCardIndex: 0,
+      conversationTurns: [
+        {
+          type: 'llm_initial_interpretation' as 'llm_initial_interpretation',
+          content: interpretation,
+          timestamp: now,
+        },
+      ],
+      category: category || '기타',
+      createdAt: now,
+      updatedAt: now,
+    };
+    addReading(user.uid, reading);
+    savedRef.current = true;
+  }, [user, question, category, spread, selectedCards, interpretation]);
+
+  const handleShare = () => {
+    setShowFriendModal(true);
+  };
+
+  const handleSelectFriend = async (friendId: string) => {
+    if (!user || !interpretation) {
+      console.log('공유 불가: user 또는 interpretation 없음', user, interpretation);
+      return;
+    }
+    setSharing(true);
+    setShareError(null);
+    try {
+      const sharedReading = {
+        sharedReadingId: uuidv4(),
+        originalReadingId: 'TODO',
+        sharedTurnIndex: 0,
+        sharerUid: user.uid,
+        receiverUids: [friendId],
+        sharedAt: Date.now(),
+        sharedInterpretationContent: interpretation,
+        ratings: [],
+        comments: [],
+        emojis: [],
+      };
+      console.log('공유 데이터:', sharedReading);
+      await setSharedReading(sharedReading);
+      console.log('공유 성공!');
+      alert('친구에게 해석이 성공적으로 공유되었습니다!');
+      setShowFriendModal(false);
+      history.push('/tabs/social');
+    } catch (e) {
+      setShareError('공유 실패: ' + (e as any).message);
+      console.error('공유 에러:', e);
+    } finally {
+      setSharing(false);
+    }
+  };
+
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonBackButton defaultHref="/tarot/pick" />
-          <IonTitle>타로 해석 결과</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <CommonHeader title="타로 해석 결과" backHref="/tabs/tarot/pick" unreadCount={unreadCount} onClickNotification={onClickNotification} />
       <IonContent className="ion-padding">
         <IonCard color="light">
           <IonCardHeader>
             <IonCardTitle>질문</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
-            <IonText color="primary">예시: "이직을 해도 괜찮을까요?"</IonText>
+            <IonText color="primary">{question ? `"${question}"` : '질문이 입력되지 않았습니다.'}</IonText>
+            <div className={styles.categoryInfo}>카테고리: {category || '미선택'} / 스프레드: {spread || '미선택'}</div>
           </IonCardContent>
         </IonCard>
         <IonCard color="light">
@@ -31,14 +122,13 @@ const Result: React.FC = () => {
           </IonCardHeader>
           <IonCardContent>
             <IonList>
-              {dummyCards.map(card => (
+              {selectedCards.length > 0 ? selectedCards.map(card => (
                 <IonItem key={card.id}>
                   <IonLabel>
-                    <b>{card.name}</b> ({card.position})<br/>
-                    <small>{card.desc}</small>
+                    <b>{card.name}</b>
                   </IonLabel>
                 </IonItem>
-              ))}
+              )) : <IonText color="medium">카드가 선택되지 않았습니다.</IonText>}
             </IonList>
           </IonCardContent>
         </IonCard>
@@ -75,14 +165,15 @@ const Result: React.FC = () => {
           <IonCardContent>
             <IonLabel>별점 (1~5점)</IonLabel>
             <IonInput type="number" min={1} max={5} placeholder="5" />
-            <IonLabel style={{marginTop:8}}>의견(선택)</IonLabel>
+            <IonLabel className={styles.feedbackLabel}>의견(선택)</IonLabel>
             <IonTextarea autoGrow placeholder="50자 이내로 의견을 남겨주세요." />
-            <IonButton expand="block" style={{marginTop:16}}>피드백 제출</IonButton>
+            <IonButton expand="block" className={styles.feedbackButton}>피드백 제출</IonButton>
           </IonCardContent>
         </IonCard>
-        <IonButton expand="block" color="secondary" style={{marginTop:24}}>해석 공유하기</IonButton>
-        <IonButton expand="block" style={{marginTop:12}} routerLink="/tarot/question">새로운 질문 시작</IonButton>
-        <IonButton expand="block" style={{marginTop:12}} routerLink="/tarot/followup">이어 질문하기</IonButton>
+        <IonButton expand="block" color="secondary" className={styles.shareButton} onClick={handleShare}>해석 공유하기</IonButton>
+        <IonButton expand="block" className={styles.newQuestionButton} routerLink="/tarot/question">새로운 질문 시작</IonButton>
+        <IonButton expand="block" className={styles.followupButton} routerLink="/tarot/followup">이어 질문하기</IonButton>
+        <FriendSelectModal open={showFriendModal} onSelect={handleSelectFriend} onClose={()=>setShowFriendModal(false)} sharing={sharing} error={shareError} />
       </IonContent>
     </IonPage>
   );

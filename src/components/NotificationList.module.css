@@ -1,0 +1,273 @@
+.modal {
+  --height: 100%;
+  --width: 100%;
+}
+
+.content {
+  --background: var(--ion-background-color);
+  --padding-bottom: env(safe-area-inset-bottom);
+  --scrollbar-display: none;
+}
+
+/* IonContent 자체의 스크롤바 숨김 */
+.content {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* IonContent 내부의 스크롤 컨테이너 스크롤바 숨김 */
+.content::part(scroll) {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.content::part(scroll)::-webkit-scrollbar {
+  display: none;
+}
+
+/* 모든 자식 요소의 스크롤바도 숨김 처리 */
+.content ::-webkit-scrollbar {
+  display: none !important;
+}
+
+.content * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+@media (min-width: 768px) {
+  .modal {
+    --width: 400px;
+    --height: auto;
+    --max-height: 80%;
+  }
+}
+
+.container {
+  padding: 16px;
+  min-height: 200px;
+  background: var(--ion-background-color);
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: var(--ion-color-medium);
+}
+
+.empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: var(--ion-color-medium);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: transparent;
+}
+
+.notificationItem {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  border-bottom: 1px solid var(--ion-color-light);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notificationHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.titleUnread {
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.titleRead {
+  font-weight: 400;
+  color: var(--ion-color-medium);
+}
+
+.message {
+  font-size: 0.9rem;
+  color: var(--ion-color-dark);
+  margin-bottom: 4px;
+  white-space: pre-wrap;
+}
+
+.timestamp {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+}
+
+.newBadge {
+  font-size: 0.7rem;
+  --padding-start: 4px;
+  --padding-end: 4px;
+  height: 18px;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--ion-color-medium);
+  font-size: 1rem;
+}
+
+ion-label h2 {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+ion-note {
+  font-size: 12px;
+  display: block;
+  margin-top: 4px;
+}
+
+.modalContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.modalOverlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modalContent {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  width: 100%;
+  max-width: 400px;
+  background: var(--ion-background-color);
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.modalOverlay.visible .modalContent {
+  transform: translateX(-50%) translateY(0);
+}
+
+.header {
+  padding: 16px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #ffffff;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #999;
+}
+
+.notificationList {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.notificationContent {
+  flex: 1;
+}
+
+.notificationTitle {
+  font-weight: 500;
+  margin: 0 0 4px;
+  color: #cccccc;
+}
+
+.notificationTime {
+  font-size: 12px;
+  color: #888;
+}
+
+.unread {
+  background-color: rgba(0, 128, 255, 0.1);
+}
+
+.unread .notificationTitle {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  background-color: #0080ff;
+  border-radius: 50%;
+  margin-top: 6px;
+}
+
+/* 모달 스타일 */
+.notificationModal {
+  --height: 75%;
+  --width: 100%;
+  margin-top: 0;
+  --border-radius: 0;
+}
+
+@media (min-width: 768px) {
+  .modal {
+    --width: 400px;
+    --height: auto;
+    --max-height: 80%;
+    margin-top: 60px;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 768px) {
+  .modalContent {
+    max-width: 100%;
+  }
+} 

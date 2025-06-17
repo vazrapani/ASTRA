@@ -1,0 +1,25 @@
+.cardGrid {
+  margin-top: 24px;
+}
+
+.cardCol {
+  text-align: center;
+}
+
+.cardName {
+  font-size: 2em;
+  padding: 1em 0;
+}
+
+.interpretButton {
+  margin-top: 32px;
+}
+
+.centered {
+  text-align: center;
+  margin-top: 32px;
+}
+
+.centeredText {
+  margin-top: 16px;
+} 

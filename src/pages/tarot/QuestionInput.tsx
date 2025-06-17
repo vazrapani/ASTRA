@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonTextarea, IonButton, IonText, IonCard, IonCardContent, IonBackButton } from '@ionic/react';
+import React, { useEffect } from 'react';
+import { IonPage, IonContent, IonLabel, IonSelect, IonSelectOption, IonTextarea, IonButton, IonText, IonCard, IonCardContent } from '@ionic/react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { setCategory, setQuestion } from '../../store/slices/tarotSlice';
+import CommonHeader from '../../components/CommonHeader';
+import styles from './QuestionInput.module.css';
 
 const categories = [
   '연애', '직업', '사업', '금전', '상대방의 속마음', '건강', '기타'
@@ -15,38 +20,45 @@ const questionExamples: Record<string, string[]> = {
   '기타': ['올해 전반적인 운세가 궁금해요.']
 };
 
-const QuestionInput: React.FC = () => {
-  const [category, setCategory] = useState('연애');
-  const [question, setQuestion] = useState('');
+interface QuestionInputProps {
+  unreadCount: number;
+  onClickNotification: () => void;
+}
+
+const QuestionInput: React.FC<QuestionInputProps> = ({ unreadCount, onClickNotification }) => {
+  const dispatch = useDispatch();
+  const category = useSelector((state: RootState) => state.tarot.category) || '연애';
+  const question = useSelector((state: RootState) => state.tarot.question) || '';
+
+  // 진입 시 질문/카테고리 초기화
+  useEffect(() => {
+    dispatch(setCategory(''));
+    dispatch(setQuestion(''));
+  }, [dispatch]);
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonBackButton defaultHref="/" />
-          <IonTitle>질문 입력</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <CommonHeader title="질문 입력" backHref="/tabs/tarot" unreadCount={unreadCount} onClickNotification={onClickNotification} />
       <IonContent className="ion-padding">
         <IonCard color="light">
           <IonCardContent>
             <IonLabel position="stacked">질문 카테고리</IonLabel>
-            <IonSelect value={category} onIonChange={e => setCategory(e.detail.value)}>
+            <IonSelect value={category} onIonChange={e => dispatch(setCategory(e.detail.value))}>
               {categories.map(cat => (
                 <IonSelectOption key={cat} value={cat}>{cat}</IonSelectOption>
               ))}
             </IonSelect>
-            <IonLabel position="stacked" style={{marginTop:16}}>질문 입력</IonLabel>
+            <IonLabel position="stacked" className={styles.labelMargin}>질문 입력</IonLabel>
             <IonTextarea
               value={question}
-              onIonChange={e => setQuestion(e.detail.value!)}
+              onIonChange={e => dispatch(setQuestion(e.detail.value!))}
               placeholder="구체적으로 질문할수록 더 좋은 해석을 얻을 수 있어요! (예: '다음 달 금전운은 어떻게 될까요?')"
               autoGrow
             />
-            <IonText color="medium" style={{fontSize:'0.95em',marginTop:8,display:'block'}}>
+            <IonText color="medium" className={styles.exampleText}>
               예시: {questionExamples[category][0]}
             </IonText>
-            <IonButton expand="block" style={{marginTop:24}} routerLink="/tarot/spread">타로 카드 뽑기</IonButton>
+            <IonButton expand="block" className={styles.nextButton} routerLink="/tabs/tarot/spread">타로 카드 뽑기</IonButton>
           </IonCardContent>
         </IonCard>
       </IonContent>

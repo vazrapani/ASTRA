@@ -1,0 +1,232 @@
+.spreadGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.spreadItem {
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.spreadImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  background: var(--ion-color-medium);
+}
+
+.spreadContent {
+  padding: 16px;
+}
+
+.spreadName {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--ion-color-dark);
+}
+
+.spreadDescription {
+  font-size: 0.9em;
+  color: var(--ion-color-medium);
+  margin-bottom: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.spreadInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9em;
+  color: var(--ion-color-medium);
+}
+
+.spreadStatus {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+}
+
+.statusActive {
+  background: var(--ion-color-success);
+  color: white;
+}
+
+.statusInactive {
+  background: var(--ion-color-medium);
+  color: white;
+}
+
+.modalContent {
+  padding: 16px;
+}
+
+.modalTitle {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  margin-bottom: 16px;
+}
+
+.imageUpload {
+  margin: 16px 0;
+  border: 2px dashed var(--ion-color-medium);
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.imageUpload:hover {
+  border-color: var(--ion-color-primary);
+  color: var(--ion-color-primary);
+}
+
+.previewImage {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  margin: 16px 0;
+  border-radius: 8px;
+}
+
+.positionList {
+  margin: 16px 0;
+}
+
+.positionItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+}
+
+.positionNumber {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ion-color-primary);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.9em;
+}
+
+.positionDetails {
+  flex: 1;
+}
+
+.positionActions {
+  display: flex;
+  gap: 8px;
+}
+
+.categoryChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.categoryChip {
+  background: var(--ion-color-light);
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.deleteButton {
+  color: var(--ion-color-danger);
+}
+
+.searchBar {
+  padding: 16px;
+  background: var(--ion-color-light);
+  margin-bottom: 16px;
+}
+
+.spreadCanvas {
+  width: 100%;
+  height: 400px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  margin: 16px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.positionMarker {
+  position: absolute;
+  width: 60px;
+  height: 100px;
+  background: rgba(var(--ion-color-primary-rgb), 0.2);
+  border: 2px solid var(--ion-color-primary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: move;
+  user-select: none;
+}
+
+.positionMarkerNumber {
+  background: var(--ion-color-primary);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+}
+
+.centerText {
+  text-align: center;
+}
+
+.marginTop12 {
+  margin-top: 12px;
+}
+
+.marginTop16 {
+  margin-top: 16px;
+}
+
+.marginTop24 {
+  margin-top: 24px;
+}
+
+.margin40 {
+  margin-top: 40px;
+}
+
+.fontGray {
+  color: #888;
+}
+
+.fontSize1_1em {
+  font-size: 1.1em;
+}
+
+.textRight {
+  text-align: right;
+}
+
+.margin16 {
+  margin: 16px;
+} 

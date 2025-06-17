@@ -1,0 +1,12 @@
+.centerBox {
+  text-align: center;
+  margin-bottom: 2em;
+}
+.mainTitle {
+  color: #6c47ff;
+  font-weight: 600;
+}
+.mainDesc {
+  font-size: 0.95em;
+  color: #888;
+} 

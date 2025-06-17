@@ -31,4 +31,5 @@ http://ionicframework.com/docs/theming/ */
 :root {
   --ion-font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Roboto', sans-serif;
   --ion-font-weight: 400;
+  --ion-toolbar-height: 44px;
 }

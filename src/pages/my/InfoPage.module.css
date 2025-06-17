@@ -1,0 +1,20 @@
+.infoContainer {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2em;
+}
+
+.sectionTitle {
+  margin-bottom: 16px;
+}
+
+.authorInfo {
+  margin-bottom: 24px;
+  font-size: 1.05em;
+}
+
+.termsText {
+  font-size: 0.98em;
+  line-height: 1.7;
+  white-space: pre-line;
+} 

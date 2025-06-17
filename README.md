@@ -2,6 +2,15 @@
 
 내면의 지혜를 밝히는 판타지 타로 앱
 
+## 스타일 관리 원칙
+
+- 인라인 style 속성 사용 금지 (예외 없음)
+- 모든 스타일은 컴포넌트 전용 .module.css 파일에 작성
+- 공통 색상, 폰트, spacing 등은 src/theme/variables.css에서 관리
+- 공통 UI(헤더, 버튼 등)는 공통 컴포넌트 + 공통 CSS로만 관리
+- 기존 인라인 스타일 발견 시 즉시 .module.css로 이전
+- 스타일 관련 논의/변경 사항은 README에 기록
+
 ## 프로젝트 개요
 
 Astra Tarot은 대규모 언어 모델(LLM)을 활용하여 개인화된 타로 해석을 제공하고, 친구 간의 소셜 교류를 지원하는 하이브리드 웹 앱입니다.
@@ -104,6 +113,14 @@ Astra Tarot은 대규모 언어 모델(LLM)을 활용하여 개인화된 타로 
   - 이상 징후 감지
   - 백업 및 복구
 
+### 6. 지난 대화 기록 보기(타로 리딩 히스토리)
+
+- 사용자가 과거에 받은 타로 해석과 대화 기록을 한눈에 확인, 검색, 필터, 상세 조회, 이어 질문 가능
+- Firestore `/users/{userId}/readings/{readingId}` 구조로 저장, 각 리딩의 질문/카드/해석/대화/피드백 등 모든 정보 관리
+- 검색(키워드, 기간, 카테고리), 무한 스크롤, 상세 대화(카톡형 UI), 별점/피드백, 공유, 삭제 등 다양한 UX 제공
+- 데이터/서비스/컴포넌트/상태관리 계층 분리, 모듈화, 테스트, 보안 등 실무적 개발 원칙 적용
+- 상세 기획은 `App_Flow_and_Features.md` 참고
+
 ## 프로젝트 구조
 
 ```
@@ -175,21 +192,38 @@ ISC
 - 폰트 파일 위치: `src/assets/fonts/`
 - 최적화: font-display: swap 적용 
 
+## 문의하기(제작자 문의) 기능 개발 및 연동 원칙
+
+- 문의하기는 ContactPage(프론트) → Firebase Cloud Function(백엔드) → Firestore 저장 + SendGrid 이메일 발송 구조로 동작
+- InquiryForm 컴포넌트에서 제목/내용 입력, 로그인 이메일 자동 사용, 전송 성공 시 3초 후 마이페이지 이동 UX 적용
+- Cloud Function(`submitInquiry`)에서 Firestore inquiries 컬렉션 저장 및 지정 이메일로 자동 발송
+- SendGrid API 키, 발신/수신자 이메일은 환경 변수로 관리, 배포 전 반드시 등록
+- 문의 내역은 추후 관리자 페이지에서 확인/답변 기능으로 확장 예정
+- 모든 문의 데이터는 Firestore에 안전하게 저장, 개인정보 보호 및 보안 준수
+
 ## 진행 요약 및 다음 작업 (2024-06-09)
 
 ### 1. 지금까지 진행한 내용
 - 전체 78장(메이저+마이너) 타로 카드 배열 구현 및 오늘의 카드 기능 정상 동작
+- 문의하기(프론트/백엔드/이메일 연동) 기능 구현 및 테스트 완료
+  - ContactPage/InquriyForm에서 문의 전송 → Cloud Function → Firestore 저장 + 이메일 발송
+  - SendGrid 환경 변수 등록 및 실제 이메일 수신 확인
 - README, App_Flow_and_Features.md 등 문서 기반으로 전체 서비스 플로우/UX 구조 파악
 - 기존 코드 구조(타로 메인, 오늘의 카드, 3장 스프레드 등)와 앞으로 확장할 화면 구조 점검
 - 코드/폴더 구조상 큰 충돌 없이 확장 가능한 상태 확인
+- ✅ 스프레드별(1장, 3장, 5장, 켈틱 등) 화면/컴포넌트 설계 및 구현 완료
 
 ### 2. 다음번에 해야 할 일
-- 스프레드별(1장, 3장, 5장, 켈틱 등) 화면/컴포넌트 설계 및 구현
-  - 카테고리 선택 → 질문 입력 → 스프레드(카드수) 선택(자동/수동) → 카드 선택 → 애니메이션 → 결과/해석 플로우 단계별 구현
+- 문의하기 내역을 Firestore에서 불러와 관리자 페이지에서 확인/답변 기능 구현
 - 각 단계별 화면을 별도 파일/컴포넌트로 분리하여 관리(유지보수성 강화)
 - 카드 데이터/공통 로직 유틸 분리(예: src/utils/tarotCards.ts)
 - 라우팅 구조 명확화(메인→카테고리→질문→스프레드→카드선택→결과)
 - (추후) 기록 저장, 소셜/공유, 크레딧/결제 등 부가 기능 확장
+
+## ⚠️ 진행 중단/다음 접속 시 이어서 할 작업 메모
+
+- 2024-06-XX: Google Cloud Functions(GCP) 서비스 장애(503/500 등)로 문의하기 기능(Cloud Function) 배포 및 테스트가 중단됨. 장애 해소 후 배포/테스트/로그 진단부터 이어서 진행 필요.
+- 네이버 소셜 로그인 연동 기능도 중간에 멈춘 상태. 다음 접속 시 네이버 로그인 연동(Callback, Firebase Functions, 환경 변수, 연동 해제 등) 구현 마저 진행해야 함.
 
 ---
 
@@ -213,3 +247,351 @@ exports.geminiInterpret = functions.https.onRequest({ region: "asia-northeast3" 
 ```
 
 > 내일 "README에 적혀 있는 다음단계의 할일이 뭐야?"라고 물으면, 위 ⏳ 앞으로 해야 할 일 목록을 기준으로 답변하면 됨. 
+
+## TODO: 프로젝트 종료 후 체크할 내용
+
+### Firebase 익명 계정 30일 미사용 자동 삭제 기능
+- Cloud Functions를 이용해 30일 이상 미사용된 익명(Anonymous) 계정을 자동으로 삭제하는 기능 구현 필요
+- Blaze(유료) 요금제에서만 스케줄러 사용 가능
+- 예시 코드:
+
+```js
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+admin.initializeApp();
+
+const THIRTY_DAYS = 1000 * 60 * 60 * 24 * 30;
+
+exports.deleteOldAnonymousUsers = functions.pubsub.schedule('every 24 hours').onRun(async (context) => {
+  const now = Date.now();
+  let nextPageToken;
+  let deletedCount = 0;
+
+  do {
+    const listUsersResult = await admin.auth().listUsers(1000, nextPageToken);
+    for (const userRecord of listUsersResult.users) {
+      if (
+        userRecord.providerData.length === 0 && // 익명 계정
+        userRecord.metadata.lastSignInTime &&
+        now - new Date(userRecord.metadata.lastSignInTime).getTime() > THIRTY_DAYS
+      ) {
+        await admin.auth().deleteUser(userRecord.uid);
+        deletedCount++;
+      }
+    }
+    nextPageToken = listUsersResult.pageToken;
+  } while (nextPageToken);
+
+  console.log(`Deleted ${deletedCount} old anonymous users.`);
+  return null;
+});
+```
+
+- 실제 적용 전, Cloud Functions 배포 및 Blaze 요금제 전환 필요
+- 자세한 구현 및 배포 방법은 Firebase 공식 문서 참고 
+
+## 네이버 소셜 로그인 연동 관련 메모 (2024-06-11)
+
+- 현재 네이버 소셜 로그인 연동 시, Firebase Functions(백엔드)에서 네이버 Client ID/Secret/Redirect URI 환경변수(Secrets)가 누락되거나 잘못 등록된 경우 access_token 발급이 실패함.
+- Functions 로그에 `client_id is missing` 또는 관련 에러가 반복적으로 발생할 수 있음.
+- 이는 .env 파일만 수정해서는 해결되지 않고, 반드시 Firebase CLI로 secrets를 재등록해야 함.
+
+### 다음번 네이버 로그인 연동/배포 시 꼭 해야 할 일
+
+1. **Secrets(환경변수) 재등록**
+   ```bash
+   firebase functions:secrets:set VITE_NAVER_CLIENT_ID
+   # 프롬프트에 Client ID 입력 (예: Dai3poR5NihXJlTCyVxn)
+   firebase functions:secrets:set VITE_NAVER_CLIENT_SECRET
+   # 프롬프트에 Secret 입력 (예: FOPE3QrXZ6)
+   firebase functions:secrets:set VITE_NAVER_REDIRECT_URI
+   # 프롬프트에 Redirect URI 입력 (예: http://localhost:8100/naver/callback)
+   ```
+2. **Secrets 등록 후 반드시 Functions 재배포**
+   ```bash
+   firebase deploy --only functions
+   ```
+
+- 위 과정을 거치지 않으면 네이버 로그인 연동이 정상 동작하지 않으니, 배포/환경 변경 시 반드시 위 절차를 반복할 것!
+
+## 네이버 소셜 로그인 연동 안내
+
+- 네이버 로그인 연동 시, 네이버 개발자센터에 Callback URL과 연결끊기(연동 해제) URL을 등록해야 합니다.
+- **연결끊기(연동 해제) API는 추후 구현 필요!**
+    - 사용자가 네이버 계정에서 서비스 연결을 해제할 때 네이버가 등록된 URL로 POST 요청을 보냅니다.
+    - 해당 요청을 받아 실제로 회원 탈퇴/연동 해제 처리를 하는 서버 API를 구현해야 합니다.
+    - 현재는 URL만 등록되어 있고, 실제 동작은 미구현 상태입니다.
+
+> TODO: `/naver/unlink` 엔드포인트에서 네이버 연결끊기(연동 해제) 처리를 구현할 것 
+
+## UI/페이지 구조 및 스타일 정책(프로젝트 표준)
+
+### 1. 페이지(탭 루트/상세/최상위) 구조
+- 모든 페이지는 아래 구조를 반드시 따른다:
+  ```tsx
+  <IonPage>
+    <CommonHeader ... />
+    <IonContent className={styles.content}>
+      <div className={styles.container}>
+        {/* 실제 컨텐츠(서브 컴포넌트 등) */}
+      </div>
+    </IonContent>
+  </IonPage>
+  ```
+- 공통 헤더(CommonHeader)는 IonPage 바로 아래에만 위치
+- IonContent는 IonPage 바로 아래에만 위치
+- container 등 레이아웃 스타일은 반드시 .module.css에서만 관리
+
+### 2. 서브 컴포넌트(리스트, 폼, 카드 등) 구조
+- 서브 컴포넌트는 오직 "컨텐츠"만 반환 (IonPage, IonContent, 헤더 등 포함 금지)
+- 필요시 props로 "헤더 숨김/표시" 등만 제어
+- 스타일은 해당 컴포넌트의 .module.css에서만 관리
+
+### 3. 라우팅/탭 구조
+- 탭 루트/상세/서브 페이지 모두 위 구조를 일관 적용
+- 중첩 라우팅 시에도 IonPage/IonContent/헤더 중첩 금지
+- 공통 레이아웃/정책은 README, 코드 주석, 문서 등으로 명확히 규정
+
+### 4. 예외/임시방편 금지
+- 인라인 스타일, 글로벌 스타일, 구조적 예외, 임시방편 등 절대 금지
+- 모든 구조/정책은 이 표준에 따라야 하며, 나중에 예외/딴소리 없이 일관성 유지
+
+### 5. 적용 예시
+- 소셜, 마이페이지, 타로, 관리자 등 모든 페이지에 동일하게 적용
+- 서브 컴포넌트(리스트, 카드, 폼 등)는 어디서든 재사용 가능 
+
+### 마이페이지 - 내 친구 코드 정책
+- 마이페이지(프로필/설정) 화면에 '내 친구 코드'를 항상 표시
+- 친구 추가/초대 기능에서 이 코드를 입력하면 친구로 추가 가능
+- 친구 코드는 고유값(예: UID, 별도 난수 등)으로 발급/표시
+- 친구 코드 복사/공유 기능 제공(추후)
+- 정책/구조는 README 및 UI에 명확히 반영 
+
+# 오늘의 타로 - 서버 시간/기록 기반 하루 1회 시스템
+
+## Firestore DB 구조
+
+- 컬렉션: `users/{userId}/dailyTarotResult`
+- 문서 예시:
+  ```json
+  {
+    "date": "2024-06-11",
+    "cardIndex": 12,
+    "interpretation": "오늘의 해석 내용...",
+    "createdAt": Timestamp
+  }
+  ```
+
+## 동작 규칙
+
+1. **하루 1회 제한**
+   - 오늘의 타로는 서버(Firestore) 시간 기준으로 하루 1회만 뽑을 수 있다.
+   - 클라이언트는 반드시 Firestore의 기록을 확인 후 뽑기/상태 표시를 한다.
+
+2. **클라이언트-서버 동기화**
+   - 뽑기 시도 시 Firestore에서 `dailyTarotResult`를 읽어 오늘 날짜와 비교한다.
+   - 이미 뽑았다면 기존 결과만 보여주고, 아니면 새로 뽑기 가능하다.
+   - 뽑기 성공 시 Firestore에 오늘 날짜/카드/해석을 저장한다.
+
+3. **알림/신호 시스템**
+   - 00시에 서버(Cloud Functions 등)에서 푸시 알림 및 실시간 신호를 발송할 수 있다.
+   - 앱/웹이 켜져 있으면 실시간 신호로 인앱 알림, 꺼져 있으면 푸시 알림으로 안내한다.
+
+4. **예외/테스트 케이스**
+   - 여러 날 미접속: 마지막 기록이 오늘이 아니면 새로 뽑기 가능
+   - 디바이스 시간 조작: 서버 시간 기준이므로 편법 불가
+   - 네트워크 오류: 서버와 동기화 실패 시 에러 안내 및 재시도 UX 제공
+   - 중복 요청: 서버에서 하루 1회만 허용(동시성 제어)
+
+5. **유지보수/확장 가이드**
+   - 서버 기록 구조/필드 변경 시 클라이언트 코드도 함께 수정 필요
+   - 푸시 알림/실시간 신호 시스템은 선택적으로 확장 가능
+
+---
+
+> 이 규칙에 따라 오늘의 타로 기능을 서버 시간/기록 기반으로 체계적으로 관리합니다. 
+
+## 알림 시스템 (Notification System)
+
+### 개요
+알림 시스템은 사용자에게 다음과 같은 이벤트를 실시간으로 알려줍니다:
+- 친구 초청 받았을 때
+- 오늘의 타로 초기화 되었을 때
+- 타로 리딩이 공유 되었을 때
+- 관리자가 공지를 올렸을 때 (시스템 공지사항)
+
+### 주요 기능
+1. 실시간 알림 표시
+   - 읽지 않은 알림 수를 배지로 표시
+   - 알림 목록을 모달로 표시
+   - 읽은 알림은 회색으로 표시
+
+2. 알림 타입별 라우팅
+   - 각 알림은 관련된 페이지로 자동 이동
+   - 동적 라우팅 파라미터 지원
+
+### 새로운 알림 타입 추가 방법
+
+1. 타입 정의 추가
+```typescript
+// types/notification.ts
+export type NotificationType = 
+  | 'EXISTING_TYPE'
+  | 'NEW_NOTIFICATION_TYPE';  // 새로운 타입 추가
+
+// 라우팅 정보 추가
+export const NOTIFICATION_ROUTES: Record<NotificationType, string> = {
+  EXISTING_TYPE: '/existing/path',
+  NEW_NOTIFICATION_TYPE: '/new/path'  // 새로운 라우팅 경로 추가
+};
+
+// 알림 데이터 인터페이스 추가
+interface NewNotification extends BaseNotification {
+  type: 'NEW_NOTIFICATION_TYPE';
+  data: {
+    // 필요한 데이터 필드 추가
+    someId: string;
+    someData: string;
+  };
+}
+
+// Union 타입에 추가
+export type Notification = 
+  | ExistingNotification
+  | NewNotification;  // 새로운 타입 추가
+```
+
+2. 알림 생성 함수 추가
+```typescript
+// services/firebase/notificationService.ts
+class NotificationService {
+  async createNewTypeNotification(
+    userId: string,
+    data: { someId: string; someData: string }
+  ) {
+    const notification: NewNotification = {
+      id: uuidv4(),
+      type: 'NEW_NOTIFICATION_TYPE',
+      title: '새로운 알림',
+      time: Date.now(),
+      read: false,
+      data
+    };
+
+    await this.saveNotification(userId, notification);
+  }
+}
+```
+
+3. 스타일링 추가
+```css
+/* components/NotificationItem.module.css */
+.newTypeIcon {
+  background-color: #your-color;
+}
+```
+
+4. 아이콘 매핑 추가
+```typescript
+// components/NotificationItem.tsx
+const NotificationIcon: React.FC<{ type: Notification['type'] }> = ({ type }) => {
+  const iconClass = {
+    // ... 기존 매핑
+    'NEW_NOTIFICATION_TYPE': styles.newTypeIcon
+  }[type];
+
+  return <div className={`${styles.notificationIcon} ${iconClass}`} />;
+};
+```
+
+### 주의사항
+- 알림은 사용자별로 저장되며, 읽음 상태가 유지됩니다.
+- 알림 클릭 시 자동으로 읽음 처리되며, 배지 카운트가 감소합니다.
+- 페이지가 미구현된 경우에도 라우팅 구조는 미리 준비되어 있습니다.
+
+### 향후 개선 계획
+- [ ] 알림 그룹화 기능
+- [ ] 알림 필터링
+- [ ] 알림 설정 (알림 종류별 ON/OFF)
+- [ ] 알림음 설정
+- [ ] 푸시 알림 지원 
+
+## 일일 타로 구현 가이드
+
+### 1. 타로 카드 뽑기 프로세스
+
+#### 1.1. 프로세스 흐름
+1. **[프론트엔드] 덱 랜덤 선택**
+   - 라이더-웨이트와 토트 덱 중 무작위 선택
+   - 확장성 고려: 새로운 덱 추가 시 코드 수정 없이 덱 목록만 업데이트
+
+2. **[프론트엔드] 카드 랜덤 선택**
+   - 선택된 덱의 78장 중 1장 무작위 선택
+
+3. **[프론트엔드] 카드 정보 구성**
+   - 카드 이름 (예: The Sun)
+   - 메이저/마이너 여부
+   - 정/역방향 정보
+
+4. **[프론트엔드] 백엔드 호출**
+   - 구성된 카드 정보와 함께 Firebase Cloud Functions 호출
+
+5. **[백엔드] 프롬프트 구성 및 LLM 호출**
+   - 덱 종류별 차별화된 해석 스타일 적용
+   - Gemini 1.5 Flash API 호출
+
+6. **[백엔드] 해석 결과 반환**
+   - Gemini 응답을 프론트엔드로 전달
+
+7. **[프론트엔드] 결과 표시**
+   - 간결한 스타일로 해석 결과 표시
+
+#### 1.2. 이미지 처리 가이드
+- **덱 준비**
+  - 라이더-웨이트 덱과 토트 덱 (각 78장)
+  - 경로: `src/assets/temp_cards/{deck-name}/`
+
+- **임시 이미지 처리**
+  - 개발 단계에서 임시 이미지 생성
+  - 카드 비율의 직사각형 코드 블록에 카드 이름 표시
+  - 정/역방향 상태 시각적 표현 ('↑', '↓')
+
+#### 1.3. 카드 선택 및 LLM 입력 규칙
+- **카드 선택 주체**
+  - 앱 코드에서 랜덤 선택 처리 (LLM은 해석만 담당)
+  - 78장 전체 덱에서 선택 (메이저 22장, 마이너 56장)
+
+- **LLM 입력 정보**
+  - 덱 종류 (Rider-Waite/Thoth)
+  - 카드 이름
+  - 메이저/마이너 구분
+  - 정/역방향 여부
+
+#### 1.4. 해석 스타일 규칙
+- 일일 타로는 반드시 1장만 뽑기
+- 짧고 직관적이며 긍정적인 해석 생성
+- 프롬프트 엔지니어링을 통한 스타일 통제
+  - 역할 부여
+  - 길이 제한
+  - 예시 포함
+
+### 2. 구현 체크리스트
+
+#### 2.1. 프론트엔드
+- [ ] 덱 선택 로직 구현
+- [ ] 카드 랜덤 선택 구현
+- [ ] 임시 카드 이미지 처리
+- [ ] 정/역방향 표시 구현
+- [ ] Firebase Functions 호출 구현
+- [ ] 결과 표시 UI 구현
+
+#### 2.2. 백엔드
+- [ ] 덱별 프롬프트 템플릿 구성
+- [ ] Gemini API 연동
+- [ ] 해석 결과 포맷팅
+- [ ] 에러 처리 및 재시도 로직
+
+#### 2.3. 데이터 구조
+- [ ] 덱 정보 스키마 정의
+- [ ] 카드 정보 스키마 정의
+- [ ] 일일 타로 결과 저장 구조 정의 

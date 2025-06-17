@@ -1,0 +1,243 @@
+.container {
+  padding: 16px;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.statusComplete,
+.statusAvailable {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.statusComplete {
+  background-color: #e8e8e8;
+  color: #666;
+}
+
+.statusAvailable {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.statusMessage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 40px;
+  color: #666;
+}
+
+.errorMessage {
+  text-align: center;
+  color: #f44336;
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #ffebee;
+  border-radius: 8px;
+}
+
+.cardContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.cardContainer h2 {
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.cardContainer p {
+  color: #666;
+  margin-bottom: 32px;
+}
+
+.drawButton {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.resultCard {
+  margin: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cardSvgWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+  background-color: #f5f5f5;
+  border-radius: 16px 16px 0 0;
+}
+
+.cardTitle {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.cardDirection {
+  font-size: 16px;
+  color: #666;
+}
+
+.cardDesc {
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.loadingWrapper {
+  text-align: center;
+  padding: 24px;
+}
+
+.loadingText {
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.interpretationBox {
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 24px;
+}
+
+.interpretationBox b {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.interpretationText {
+  color: #444;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.headerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.statusContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.statusChip {
+  margin: 0;
+  font-size: 12px;
+  height: 24px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.statusChip ion-icon {
+  font-size: 16px;
+  margin-right: 2px;
+}
+
+.resultContainer {
+  padding: 16px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.emptyContainer {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--ion-color-medium);
+}
+
+.tarotCard {
+  width: 200px;
+  height: 320px;
+  border-radius: 10px;
+  background: var(--ion-color-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.cardPlaceholder {
+  text-align: center;
+  color: var(--ion-color-medium);
+}
+
+.cardPlaceholder h3 {
+  font-size: 48px;
+  margin: 0;
+}
+
+.cardPlaceholder p {
+  margin: 10px 0 0;
+  font-size: 14px;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.meaningContainer {
+  padding: 20px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.meaningContainer h2 {
+  color: var(--ion-color-primary);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.interpretation {
+  white-space: pre-line;
+}
+
+.interpretation p {
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+.messageContainer {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.messageContainer p {
+  color: var(--ion-color-medium);
+  margin-bottom: 16px;
+}
+
+.loadingContainer {
+  text-align: center;
+  padding: 40px 0;
+} 

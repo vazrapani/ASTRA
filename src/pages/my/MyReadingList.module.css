@@ -1,0 +1,25 @@
+.myReadingListToolbar {
+  --min-height: 44px;
+  --height: 44px;
+  --padding-start: 0px;
+  --padding-end: 0px;
+}
+.myReadingListTopBar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.myReadingListFilterBtn {
+  height: 40px;
+}
+.myReadingListLoading,
+.myReadingListEmpty {
+  text-align: center;
+  margin-top: 48px;
+  color: #888;
+}
+.topBarFlex {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+} 

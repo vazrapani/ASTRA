@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonText, IonBackButton, IonTextarea } from '@ionic/react';
+import { IonPage, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonText, IonTextarea } from '@ionic/react';
+import CommonHeader from '../../components/CommonHeader';
+import styles from './FollowUpQuestion.module.css';
 
-const FollowUpQuestion: React.FC = () => {
+interface FollowUpQuestionProps {
+  unreadCount: number;
+  onClickNotification: () => void;
+}
+
+const FollowUpQuestion: React.FC<FollowUpQuestionProps> = ({ unreadCount, onClickNotification }) => {
   const [followUp, setFollowUp] = useState('');
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonBackButton defaultHref="/tarot/result" />
-          <IonTitle>질문 추가/대화 이어가기</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <CommonHeader 
+        title="이어 질문" 
+        backHref="/tabs/tarot/result" 
+        unreadCount={unreadCount} 
+        onClickNotification={onClickNotification} 
+      />
       <IonContent className="ion-padding">
         <IonCard color="light">
           <IonCardHeader>
@@ -40,10 +47,10 @@ const FollowUpQuestion: React.FC = () => {
               placeholder="이 해석에 대해 더 궁금한 점이 있으신가요?"
               autoGrow
             />
-            <IonButton expand="block" style={{marginTop:16}}>이어 질문하기</IonButton>
+            <IonButton expand="block" className={styles.followupButton}>이어 질문하기</IonButton>
           </IonCardContent>
         </IonCard>
-        <IonButton expand="block" style={{marginTop:24}} routerLink="/tarot/question">새로운 질문 시작</IonButton>
+        <IonButton expand="block" className={styles.newQuestionButton} routerLink="/tabs/tarot/question">새로운 질문 시작</IonButton>
       </IonContent>
     </IonPage>
   );

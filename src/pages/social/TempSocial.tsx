@@ -1,16 +1,27 @@
 import React from 'react';
-import { IonButton } from '@ionic/react';
+import { IonButton, IonPage, IonContent } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
+import CommonHeader from '../../components/CommonHeader';
+import styles from './TempSocial.module.css';
+import FriendList from './FriendList';
 
-const TempSocial: React.FC = () => (
-  <div style={{ textAlign: 'center', padding: '2em' }}>
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="12" cy="12" r="10" stroke="#6c47ff" strokeWidth="2" fill="#f5f5fa" />
-      <path d="M8 12h8M8 16h8M8 8h8" stroke="#6c47ff" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-    <h2>소셜 기능 준비중</h2>
-    <p>이곳에 소셜/커뮤니티 기능이 추가될 예정입니다.</p>
-    <IonButton expand="block" color="primary" style={{marginTop:24}} routerLink="/social/friends">친구 목록 보기</IonButton>
-  </div>
-);
+interface SocialMainProps {
+  unreadCount: number;
+  onClickNotification: () => void;
+}
 
-export default TempSocial; 
+const SocialMain: React.FC<SocialMainProps> = ({ unreadCount, onClickNotification }) => {
+  const history = useHistory();
+  return (
+    <IonPage>
+      <CommonHeader title="소셜" unreadCount={unreadCount} onClickNotification={onClickNotification} />
+      <IonContent className={styles.content}>
+        <div className={styles.container}>
+          <FriendList unreadCount={unreadCount} onClickNotification={onClickNotification} hideHeader={true} />
+        </div>
+      </IonContent>
+    </IonPage>
+  );
+};
+
+export default SocialMain; 

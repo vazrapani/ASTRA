@@ -1,20 +1,21 @@
 import React from 'react';
+import styles from './CustomInput.module.css';
 
 type CustomInputProps = {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   type?: string;
-  style?: React.CSSProperties;
+  className?: string;
 };
 
-const CustomInput: React.FC<CustomInputProps> = ({ value, onChange, placeholder, type = 'text', style }) => (
+const CustomInput: React.FC<CustomInputProps> = ({ value, onChange, placeholder, type = 'text', className }) => (
   <input
     type={type}
     value={value}
     onChange={onChange}
     placeholder={placeholder}
-    style={{ padding: '0.5em 1em', borderRadius: '6px', border: '1px solid #ccc', fontSize: '1em', ...style }}
+    className={className ? styles.input + ' ' + className : styles.input}
   />
 );
 

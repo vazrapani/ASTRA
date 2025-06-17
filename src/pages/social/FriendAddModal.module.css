@@ -1,0 +1,92 @@
+.overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modalBox {
+  background: #23232b;
+  color: #fff;
+  border-radius: 12px;
+  min-width: 320px;
+  max-width: 90vw;
+  padding: 24px 20px 16px 20px;
+  box-shadow: 0 4px 24px #0002;
+  position: relative;
+}
+.tabHeader {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.tabHeader button {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: #f5f5fa;
+  color: #6c47ff;
+  font-weight: 600;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.2s;
+}
+.tabHeader .active {
+  background: #6c47ff;
+  color: #fff;
+}
+.tabContent {
+  min-height: 120px;
+  margin-bottom: 16px;
+}
+.input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  font-size: 1em;
+}
+.searchBtn, .addBtn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  background: #6c47ff;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1em;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.resultList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.resultItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+.emptyMsg {
+  color: #888;
+  text-align: center;
+  margin: 24px 0 0 0;
+  font-size: 0.98em;
+}
+.closeBtn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.2em;
+  cursor: pointer;
+} 

@@ -1,0 +1,58 @@
+.successMessage {
+  color: #6c47ff;
+  font-weight: 600;
+  font-size: 1.1em;
+  margin-bottom: 24px;
+}
+.redirectNotice {
+  font-size: 0.95em;
+  color: #888;
+}
+.form {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2em;
+}
+.emailInfo {
+  margin-bottom: 16px;
+  font-size: 1em;
+  color: #666;
+}
+.input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 16px;
+  font-size: 1em;
+}
+.textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 16px;
+  font-size: 1em;
+  resize: vertical;
+}
+.errorMsg {
+  color: red;
+  margin-bottom: 12px;
+}
+.submitBtn {
+  width: 100%;
+  padding: 12px 0;
+  border-radius: 8px;
+  background: #6c47ff;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.05em;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+} 

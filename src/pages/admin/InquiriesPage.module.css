@@ -1,0 +1,82 @@
+.inquiryItem {
+  --background: var(--ion-color-light-tint);
+  margin: 8px;
+  border-radius: 8px;
+}
+
+.inquiryTitle {
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.inquiryEmail {
+  font-size: 0.9em;
+  color: var(--ion-color-medium);
+}
+
+.inquiryDate {
+  font-size: 0.8em;
+  color: var(--ion-color-medium);
+}
+
+.modalContent {
+  padding: 16px;
+}
+
+.modalTitle {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  margin-bottom: 8px;
+}
+
+.modalEmail {
+  font-size: 0.9em;
+  color: var(--ion-color-medium);
+  margin-bottom: 16px;
+}
+
+.modalContent {
+  white-space: pre-wrap;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+}
+
+.replyArea {
+  margin-top: 20px;
+}
+
+.flexGap8 {
+  display: flex;
+  gap: 8px;
+}
+
+.margin16_12 {
+  margin: 16px 12px;
+}
+
+.centerText {
+  text-align: center;
+}
+
+.marginTop12 {
+  margin-top: 12px;
+}
+
+.marginTop16 {
+  margin-top: 16px;
+}
+
+.margin40 {
+  margin-top: 40px;
+}
+
+.fontGray {
+  color: #888;
+}
+
+.fontSize1_1em {
+  font-size: 1.1em;
+} 

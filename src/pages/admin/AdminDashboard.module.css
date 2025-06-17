@@ -1,0 +1,27 @@
+.textRight {
+  text-align: right;
+}
+
+.marginBottom8 {
+  margin-bottom: 8px;
+}
+
+.icon2rem {
+  font-size: 2rem;
+}
+
+.iconPrimary {
+  color: var(--ion-color-primary);
+}
+
+.iconSecondary {
+  color: var(--ion-color-secondary);
+}
+
+.iconWarning {
+  color: var(--ion-color-warning);
+}
+
+.iconSuccess {
+  color: var(--ion-color-success);
+} 

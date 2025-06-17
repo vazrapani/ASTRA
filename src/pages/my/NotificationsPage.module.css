@@ -1,0 +1,48 @@
+.sectionTitle {
+  margin-bottom: 16px;
+}
+
+.centerLoading {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.emptyNotice {
+  text-align: center;
+  margin-top: 40px;
+  color: #888;
+}
+
+.itemColumn {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.fontWeight400 {
+  font-weight: 400;
+}
+
+.fontWeight600 {
+  font-weight: 600;
+}
+
+.contentText {
+  font-size: 0.95em;
+  color: #666;
+}
+
+.dateText {
+  font-size: 0.85em;
+  color: #aaa;
+}
+
+.expandedBox {
+  margin-top: 12px;
+  background: #f8f8f8;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.noticeBtn {
+  margin-top: 8px;
+} 

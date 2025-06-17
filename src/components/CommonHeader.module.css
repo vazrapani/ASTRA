@@ -1,0 +1,12 @@
+.backButton {
+  opacity: 1;
+  pointer-events: auto;
+}
+.backButtonDisabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.notificationBell {
+  position: relative;
+  cursor: pointer;
+} 

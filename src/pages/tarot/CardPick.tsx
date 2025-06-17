@@ -1,63 +1,85 @@
 import React, { useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonBackButton, IonSpinner, IonText } from '@ionic/react';
+import { IonPage, IonContent, IonButton, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonSpinner, IonText } from '@ionic/react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { selectCard, clearSelectedCards, setInterpretation } from '../../store/slices/tarotSlice';
+import CommonHeader from '../../components/CommonHeader';
+import styles from './CardPick.module.css';
+import { cards, fetchGeminiInterpret } from '../../utils/tarotCards';
 
 const dummyCards = Array.from({ length: 10 }, (_, i) => ({ id: i, picked: false }));
 
-const CardPick: React.FC = () => {
+const spreadToCount: Record<string, number> = { one: 1, three: 3, five: 5, celtic: 10 };
+
+interface CardPickProps {
+  unreadCount: number;
+  onClickNotification: () => void;
+}
+
+const CardPick: React.FC<CardPickProps> = ({ unreadCount, onClickNotification }) => {
+  const dispatch = useDispatch();
+  const spread = useSelector((state: RootState) => state.tarot.spread) || 'three';
+  const pickCount = spreadToCount[spread] || 3;
   const [picked, setPicked] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
+  const question = useSelector((state: RootState) => state.tarot.question);
 
-  // 예시: 3장 뽑기 기준
-  const pickCount = 3;
+  React.useEffect(() => {
+    dispatch(clearSelectedCards());
+  }, [dispatch]);
 
   const handlePick = (id: number) => {
     if (picked.length < pickCount && !picked.includes(id)) {
       setPicked([...picked, id]);
+      // Redux에 카드 정보 저장 (id, name만 예시)
+      dispatch(selectCard({ id, name: `카드 ${id + 1}`, imageUrl: '', meaning: '', reversedMeaning: '' }));
     }
   };
 
-  const handleInterpret = () => {
+  const handleInterpret = async () => {
     setLoading(true);
-    setTimeout(() => {
-      // 실제로는 LLM API 호출 후 결과 페이지로 이동
+    try {
+      // 선택된 카드 정보로 해석 생성 (여기서는 첫 번째 카드 기준 예시)
+      const mainCard = cards[picked[0]];
+      const result = await fetchGeminiInterpret(mainCard.name, mainCard.desc, question);
+      dispatch(setInterpretation(result));
+      window.location.href = '/tabs/tarot/result';
+    } catch (e) {
+      alert('AI 해석을 불러오지 못했습니다.');
+    } finally {
       setLoading(false);
-      window.location.href = '/tarot/result';
-    }, 2000);
+    }
   };
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonBackButton defaultHref="/tarot/spread" />
-          <IonTitle>카드 뽑기</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <CommonHeader title="카드 선택" backHref="/tabs/tarot" unreadCount={unreadCount} onClickNotification={onClickNotification} />
       <IonContent className="ion-padding">
         <IonText color="primary">
           {picked.length < pickCount
             ? `카드를 ${pickCount}장 선택하세요!`
             : '선택 완료! 해석을 시작할 수 있습니다.'}
         </IonText>
-        <IonGrid style={{marginTop:24}}>
+        <IonGrid className={styles.cardGrid}>
           <IonRow>
-            {dummyCards.slice(0, pickCount * 2).map(card => (
-              <IonCol size="4" key={card.id} style={{textAlign:'center'}}>
+            {dummyCards.slice(0, Math.max(pickCount * 2, pickCount)).map(card => (
+              <IonCol size="4" key={card.id} className={styles.cardCol}>
                 <IonCard
-                  style={{
-                    background: picked.includes(card.id) ? '#6c47ff' : '#f5f5fa',
-                    color: picked.includes(card.id) ? '#fff' : '#222',
-                    cursor: picked.length < pickCount && !picked.includes(card.id) ? 'pointer' : 'default',
-                    transition: '0.2s',
-                    boxShadow: picked.includes(card.id) ? '0 0 12px #6c47ff88' : undefined
-                  }}
+                  className={
+                    picked.includes(card.id)
+                      ? styles.pickedCard
+                      : styles.unpickedCard +
+                        (picked.length < pickCount && !picked.includes(card.id)
+                          ? ' ' + styles.cardPointer
+                          : '')
+                  }
                   onClick={() => handlePick(card.id)}
                 >
                   <IonCardContent>
-                    <div style={{fontSize:'2em',padding:'1em 0'}}>
+                    <div className={styles.cardIcon}>
                       {picked.includes(card.id) ? '🔮' : '🃏'}
                     </div>
-                    <div>카드 {card.id + 1}</div>
+                    <div className={styles.cardName}>카드 {card.id + 1}</div>
                   </IonCardContent>
                 </IonCard>
               </IonCol>
@@ -65,14 +87,14 @@ const CardPick: React.FC = () => {
           </IonRow>
         </IonGrid>
         {picked.length === pickCount && !loading && (
-          <IonButton expand="block" style={{marginTop:32}} onClick={handleInterpret}>
+          <IonButton expand="block" className={styles.interpretButton} onClick={handleInterpret}>
             해석 시작
           </IonButton>
         )}
         {loading && (
-          <div style={{textAlign:'center',marginTop:32}}>
+          <div className={styles.centered}>
             <IonSpinner name="crescent" color="primary" />
-            <p style={{marginTop:16}}>카드가 당신의 운명을 읽고 있습니다...<br/>우주의 지혜가 모이는 중...</p>
+            <p className={styles.centeredText}>카드가 당신의 운명을 읽고 있습니다...<br/>우주의 지혜가 모이는 중...</p>
           </div>
         )}
       </IonContent>

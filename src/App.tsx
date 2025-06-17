@@ -3,6 +3,23 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import MainTabs from './pages/MainTabs';
 import Login from './pages/auth/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+import { useSelector } from 'react-redux';
+import NaverCallback from './pages/auth/NaverCallback';
+import './config/firebase';
+import InquiriesPage from './pages/admin/InquiriesPage';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
+import AdminTabs from './pages/admin/AdminTabs';
+import { RootState } from './store';
+import { useEffect } from 'react';
+import { auth, db, initializeFCM } from './config/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { useDispatch } from 'react-redux';
+import { logout } from './store/slices/authSlice';
+import { useHistory, useLocation } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+import AuthWatcher from './components/AuthWatcher';
+import { updateFCMToken } from './services/firebase/notificationService';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -20,33 +37,51 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+/* Ionic Dark Mode */
+import '@ionic/react/css/palettes/dark.always.css';
 
-/* import '@ionic/react/css/palettes/dark.always.css'; */
-/* import '@ionic/react/css/palettes/dark.class.css'; */
-import '@ionic/react/css/palettes/dark.system.css';
+setupIonicReact({
+  mode: 'ios',
+});
 
-/* Theme variables */
-import './theme/variables.css';
+const App: React.FC = () => {
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
 
-setupIonicReact();
+  // FCM 초기화
+  useEffect(() => {
+    if (userId) {
+      const setupFCM = async () => {
+        try {
+          const token = await initializeFCM();
+          if (token) {
+            await updateFCMToken(userId, token);
+          }
+        } catch (error) {
+          console.error('FCM 설정 실패:', error);
+        }
+      };
+      setupFCM();
+    }
+  }, [userId]);
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Switch>
-          <Route path="/auth/login" component={Login} />
-          <Route path="/" component={MainTabs} />
-        </Switch>
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <AuthWatcher />
+        <IonRouterOutlet>
+          <Switch>
+            <Route path="/auth/login" component={Login} />
+            <Route path="/naver/callback" component={NaverCallback} />
+            <ProtectedRoute path="/tabs" component={MainTabs} />
+            <ProtectedRoute path="/tabs/*" component={MainTabs} />
+            <ProtectedAdminRoute path="/admin" component={AdminTabs} />
+            <Redirect exact from="/" to={isAuthenticated ? "/tabs" : "/auth/login"} />
+          </Switch>
+        </IonRouterOutlet>
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;

@@ -1,0 +1,13 @@
+.headerRight {
+  position: absolute;
+  right: 16px;
+  top: 12px;
+}
+
+.followupButton {
+  margin-top: 16px;
+}
+
+.newQuestionButton {
+  margin-top: 24px;
+} 

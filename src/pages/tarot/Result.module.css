@@ -1,0 +1,21 @@
+.categoryInfo {
+  margin-top: 8px;
+  color: #888;
+}
+
+.feedbackLabel {
+  margin-top: 8px;
+}
+
+.feedbackButton {
+  margin-top: 16px;
+}
+
+.shareButton {
+  margin-top: 24px;
+}
+
+.newQuestionButton,
+.followupButton {
+  margin-top: 12px;
+} 

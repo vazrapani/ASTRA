@@ -1,0 +1,58 @@
+.readingFilterPopupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.2);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.readingFilterPopupBox {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  min-width: 280px;
+  box-shadow: 0 2px 16px #0002;
+}
+.readingFilterPopupTitle {
+  margin-bottom: 16px;
+}
+.readingFilterPopupSection {
+  margin-bottom: 16px;
+}
+.readingFilterPopupSelect {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-top: 4px;
+}
+.readingFilterPopupBtnRow {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.readingFilterPopupBtn {
+  padding: 6px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+}
+.readingFilterPopupBtnReset {
+  border: 1px solid #ccc;
+  background: #fafafa;
+  color: #222;
+}
+.readingFilterPopupBtnApply {
+  border: 1px solid #6c47ff;
+  background: #6c47ff;
+  color: #fff;
+}
+.readingFilterPopupBtnClose {
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #222;
+} 
