@@ -26,6 +26,20 @@ export interface TarotCard {
   };
 }
 
+// 타로 리딩 인터페이스
+export interface TarotReading {
+  id: string;
+  userId: string;
+  date: string;
+  question: string;
+  spread: string;
+  cards: TarotCard[];
+  orientations: CardOrientation[];
+  interpretation: string;
+  isShared?: boolean;
+  sharedWith?: string[];
+}
+
 // 일일 타로 결과 인터페이스
 export interface DailyTarotResult {
   userId: string;

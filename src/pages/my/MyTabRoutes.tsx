@@ -9,7 +9,6 @@ import NotificationsPage from './NotificationsPage';
 import NoticeListPage from './NoticeListPage';
 import MyPageMain from './MyPageMain';
 import NoticeDetailPage from './NoticeDetailPage';
-import { MyPageWithNotifications } from '../MainTabs';
 
 interface MyTabRoutesProps {
   unreadCount: number;
@@ -19,12 +18,20 @@ interface MyTabRoutesProps {
 const MyTabRoutes: React.FC<MyTabRoutesProps> = ({ unreadCount, onClickNotification }) => {
   return (
     <IonRouterOutlet>
-      <Route exact path="/tabs/my" component={() => <MyPageWithNotifications page="main" />} />
+      <Route exact path="/tabs/my" render={() => (
+        <MyPageMain unreadCount={unreadCount} />
+      )} />
       <Route exact path="/tabs/my/readings" component={MyReadingList} />
       <Route exact path="/tabs/my/readings/:id" component={ReadingDetail} />
-      <Route exact path="/tabs/my/info" component={() => <MyPageWithNotifications page="info" />} />
-      <Route exact path="/tabs/my/contact" component={() => <MyPageWithNotifications page="contact" />} />
-      <Route exact path="/tabs/my/notifications" component={() => <MyPageWithNotifications page="notifications" />} />
+      <Route exact path="/tabs/my/info" render={() => (
+        <InfoPage unreadCount={unreadCount} />
+      )} />
+      <Route exact path="/tabs/my/contact" render={() => (
+        <ContactPage unreadCount={unreadCount} />
+      )} />
+      <Route exact path="/tabs/my/notifications" render={() => (
+        <NotificationsPage unreadCount={unreadCount} />
+      )} />
       <Route exact path="/tabs/my/notices" component={NoticeListPage} />
       <Route exact path="/tabs/my/notices/:noticeId" component={NoticeDetailPage} />
     </IonRouterOutlet>

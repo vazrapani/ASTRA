@@ -18,7 +18,24 @@ export default defineConfig({
   server: {
     port: 8100,
     strictPort: true,
-    host: true
+    host: true,
+    proxy: {
+      '/api/interpretMultipleCards': {
+        target: 'https://asia-northeast3-astrt-e152b.cloudfunctions.net',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/interpretMultipleCards/, '/interpretMultipleCards')
+      },
+      '/api/analyzeQuestion': {
+        target: 'https://asia-northeast3-astrt-e152b.cloudfunctions.net',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/analyzeQuestion/, '/analyzeQuestion')
+      },
+      '/api/interpretDailyTarot': {
+        target: 'https://asia-northeast3-astrt-e152b.cloudfunctions.net',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/interpretDailyTarot/, '/geminiInterpret')
+      }
+    }
   },
   build: {
     target: 'es2015',

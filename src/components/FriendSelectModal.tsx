@@ -26,17 +26,23 @@ const FriendSelectModal: React.FC<FriendSelectModalProps> = ({ open, onSelect, o
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('[FriendSelectModal/useEffect] open:', open, 'user:', user);
     if (!open || !user?.id) return;
     setLoading(true);
     setSelectedFriendId(null);
     const ref = collection(db, 'users', user.id, 'friends');
     const unsub = onSnapshot(ref, async snap => {
+      console.log('[FriendSelectModal/useEffect] friends snap.docs:', snap.docs);
       const friendIds = snap.docs.map(doc => doc.data().userId);
+      console.log('[FriendSelectModal/useEffect] friendIds:', friendIds);
       const friendList: Friend[] = [];
       for (const fid of friendIds) {
+        console.log('[FriendSelectModal/useEffect] checking fid:', fid);
         const fdoc = await getDoc(doc(db, 'users', fid));
+        console.log('[FriendSelectModal/useEffect] fdoc.exists:', fdoc.exists());
         if (fdoc.exists()) {
           const d = fdoc.data();
+          console.log('[FriendSelectModal/useEffect] friend profile:', d);
           friendList.push({
             id: fid,
             nickname: d.nickname || '이름 없음',
@@ -55,6 +61,8 @@ const FriendSelectModal: React.FC<FriendSelectModalProps> = ({ open, onSelect, o
       onSelect(selectedFriendId);
     }
   };
+
+  console.log('🔥🔥🔥 FriendSelectModal 렌더링됨!');
 
   if (!open) return null;
   return (

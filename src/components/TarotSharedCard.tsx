@@ -7,6 +7,7 @@ interface TarotSharedCardProps {
   card: TarotCard;
   orientation: CardOrientation;
   className?: string;
+  size?: 'default' | 'small';
 }
 
 const emojiList: { type: EmojiType; label: string; icon: string }[] = [
@@ -20,14 +21,15 @@ const emojiList: { type: EmojiType; label: string; icon: string }[] = [
 const TarotSharedCard: React.FC<TarotSharedCardProps> = ({
   card,
   orientation,
-  className = ''
+  className = '',
+  size = 'default'
 }) => {
   const cardTypeText = card.arcana === 'major' ? '메이저 아르카나' : '마이너 아르카나';
   const deckText = card.deck === 'rider-waite' ? '라이더-웨이트' : '토트';
   
   return (
-    <div className={`${styles.cardContainer} ${className}`}>
-      <div className={styles.cardBox}>
+    <div className={`${styles.cardContainer} ${className} ${size === 'small' ? styles.cardSmall : ''}`}>
+      <div className={`${styles.cardBox} ${size === 'small' ? styles.cardBoxSmall : ''}`}>
         <div className={styles.cardContent}>
           <div className={styles.cardHeader}>
             <span className={styles.cardDeck}>{deckText}</span>

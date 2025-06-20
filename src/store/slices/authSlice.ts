@@ -1,12 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User as UserType } from '../../types';
-
-interface User {
-  uid: string;
-  email: string | null;
-  displayName: string | null;
-  photoURL: string | null;
-}
+import { User } from '../../types/user';
 
 interface AuthState {
   user: User | null;
@@ -65,5 +58,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, updateUser, setUser, clearUser } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, updateUser, clearUser } = authSlice.actions;
+export const setUser = authSlice.actions.setUser as (user: User) => PayloadAction<User>;
 export default authSlice.reducer; 

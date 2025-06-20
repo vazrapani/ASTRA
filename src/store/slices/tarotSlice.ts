@@ -1,17 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TarotCard, DailyTarotResult } from '../../types/tarot';
+import { TarotCard, TarotReading } from '../../types/tarot';
 
 interface DailyTarotStatus {
+  lastReadDate?: string;
+  result?: any;
   isDailyAvailable: boolean;
-  result: DailyTarotResult | null;
-}
-
-interface TarotReading {
-  id: string;
-  type: 'daily' | 'weekly' | 'love' | 'career';
-  cards: TarotCard[];
-  date: string;
-  interpretation: string;
 }
 
 interface TarotState {
@@ -20,7 +13,6 @@ interface TarotState {
   isLoading: boolean;
   error: string | null;
   question: string;
-  category: string;
   spread: string; // 예: 'one', 'three', 'five', 'celtic'
   interpretation: string;
   dailyTarotStatus: DailyTarotStatus;
@@ -32,13 +24,11 @@ const initialState: TarotState = {
   isLoading: false,
   error: null,
   question: '',
-  category: '',
   spread: 'three',
   interpretation: '',
   dailyTarotStatus: {
-    isDailyAvailable: true,
-    result: null
-  }
+    isDailyAvailable: true
+  },
 };
 
 const tarotSlice = createSlice({
@@ -55,7 +45,6 @@ const tarotSlice = createSlice({
     },
     saveReading: (state, action: PayloadAction<TarotReading>) => {
       state.readings.push(action.payload);
-      state.selectedCards = [];
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
@@ -66,32 +55,39 @@ const tarotSlice = createSlice({
     setQuestion: (state, action: PayloadAction<string>) => {
       state.question = action.payload;
     },
-    setCategory: (state, action: PayloadAction<string>) => {
-      state.category = action.payload;
-    },
     setSpread: (state, action: PayloadAction<string>) => {
       state.spread = action.payload;
     },
     setInterpretation: (state, action: PayloadAction<string>) => {
       state.interpretation = action.payload;
     },
-    setDailyTarotResult: (state, action: PayloadAction<DailyTarotStatus>) => {
-      state.dailyTarotStatus = action.payload;
+    setDailyTarotResult: (state, action: PayloadAction<{ isDailyAvailable: boolean; result?: any }>) => {
+      state.dailyTarotStatus = {
+        lastReadDate: new Date().toISOString().split('T')[0],
+        isDailyAvailable: action.payload.isDailyAvailable,
+        result: action.payload.result,
+      };
+    },
+    resetTarot: (state) => {
+      state.selectedCards = [];
+      state.question = '';
+      state.spread = 'three';
+      state.interpretation = '';
     },
   },
 });
 
-export const {
+export const { 
   selectCard,
   clearSelectedCards,
   saveReading,
   setLoading,
   setError,
   setQuestion,
-  setCategory,
   setSpread,
   setInterpretation,
   setDailyTarotResult,
+  resetTarot,
 } = tarotSlice.actions;
 
 export default tarotSlice.reducer; 

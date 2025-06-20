@@ -1,154 +1,176 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendInquiryReply = exports.dailyTarotReset = void 0;
-const https_1 = require("firebase-functions/v2/https");
-const scheduler_1 = require("firebase-functions/v2/scheduler");
-const admin = __importStar(require("firebase-admin"));
-// Admin SDK 초기화
+/**
+ * Import function triggers from their respective submodules:
+ *
+ * import {onCall} from "firebase-functions/v2/https";
+ * import {onDocumentWritten} from "firebase-functions/v2/firestore";
+ *
+ * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ */
+const { onRequest } = require("firebase-functions/v2/https");
+const logger = require("firebase-functions/logger");
+const admin = require("firebase-admin");
+const fetchFromNode = require("node-fetch");
 admin.initializeApp();
-// 매일 00시에 실행되는 일일 타로 초기화 및 알림 함수
-exports.dailyTarotReset = (0, scheduler_1.onSchedule)({
-    schedule: '0 0 * * *',
-    timeZone: 'Asia/Seoul',
-    region: 'asia-northeast3'
-}, async (_event) => {
-    const db = admin.firestore();
-    const messaging = admin.messaging();
-    try {
-        // 1. 활성 사용자 목록 가져오기
-        const usersSnapshot = await db.collection('users')
-            .where('isActive', '==', true)
-            .get();
-        const batch = db.batch();
-        const notifications = [];
-        const messages = [];
-        usersSnapshot.forEach(doc => {
-            var _a;
-            const userId = doc.id;
-            const userRef = db.collection('users').doc(userId);
-            // 2. 일일 타로 상태 초기화
-            batch.update(userRef, {
-                lastDailyTarot: null
-            });
-            // 3. 앱 내 알림 생성
-            const notification = {
-                userId,
-                type: 'daily_tarot',
-                message: '오늘의 타로를 확인해보세요!',
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                read: false
-            };
-            notifications.push(notification);
-            // 4. FCM 메시지 준비
-            if ((_a = doc.data()) === null || _a === void 0 ? void 0 : _a.fcmToken) {
-                messages.push({
-                    token: doc.data().fcmToken,
-                    notification: {
-                        title: '아스트라 타로',
-                        body: '오늘의 운세를 확인해보세요!'
-                    },
-                    data: {
-                        type: 'daily_tarot'
-                    },
-                    android: {
-                        priority: 'high',
-                        notification: {
-                            channelId: 'daily_tarot'
-                        }
-                    },
-                    apns: {
-                        payload: {
-                            aps: {
-                                sound: 'default'
-                            }
-                        }
-                    }
-                });
+const cors = require('cors')({ origin: true });
+// 사용자의 질문을 분석하여 가장 적절한 타로 스프레드를 추천
+exports.analyzeQuestion = onRequest({ region: 'asia-northeast3' }, (req, res) => {
+    cors(req, res, async () => {
+        try {
+            const { question } = req.body;
+            if (!question) {
+                res.status(400).send('Question is required');
+                return;
             }
-        });
-        // 5. 일괄 처리 실행
-        await batch.commit();
-        // 6. 앱 내 알림 저장
-        const notificationPromises = notifications.map(notification => db.collection('notifications').add(notification));
-        await Promise.all(notificationPromises);
-        // 7. FCM 메시지 전송 (최대 500개씩 분할 전송)
-        for (let i = 0; i < messages.length; i += 500) {
-            const batch = messages.slice(i, i + 500);
-            if (batch.length > 0) {
-                const response = await messaging.sendAll(batch);
-                console.log('Successfully sent messages:', response.successCount);
-                if (response.failureCount > 0) {
-                    console.error('Failed to send some messages:', response.responses.filter(r => !r.success));
+            const prompt = `당신은 타로 전문가입니다. 사용자의 질문을 분석하여 가장 적절한 타로 카드 장수를 "one", "three", "five", "seven" 중 하나로만 추천해주세요. 다른 설명은 절대 추가하지 마세요. 질문: "${question}"`;
+            const apiKey = process.env.GEMINI_API_KEY;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+            const response = await fetchFromNode(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                            parts: [{
+                                    text: prompt
+                                }]
+                        }]
+                }),
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                logger.error("API call failed", { status: response.status, text: errorText });
+                res.status(response.status).send(errorText);
+                return;
+            }
+            const data = await response.json();
+            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+                logger.error("Invalid response structure from Gemini API", { data });
+                res.status(500).send('Invalid API response structure');
+                return;
+            }
+            const recommendedSpread = data.candidates[0].content.parts[0].text.trim().toLowerCase();
+            const validSpreads = ['one', 'three', 'five', 'seven'];
+            const finalSpread = validSpreads.includes(recommendedSpread) ? recommendedSpread : 'three';
+            res.json({ recommendedSpread: finalSpread });
+        }
+        catch (error) {
+            logger.error("Error in analyzeQuestion", error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+});
+// 한 장의 카드 해석 (일일 타로용)
+exports.geminiInterpret = onRequest({ region: 'asia-northeast3' }, (req, res) => {
+    cors(req, res, async () => {
+        var _a, _b, _c, _d, _e;
+        try {
+            const { cardName, cardDesc, orientation, userQuestion } = req.body;
+            if (!cardName || !cardDesc || !orientation) {
+                res.status(400).json({ error: 'Missing required parameters: cardName, cardDesc, orientation' });
+                return;
+            }
+            const prompt = `당신은 친근하고 통찰력 있는 타로 리더입니다. 아래 정보를 참고해, 카드의 본래 의미(정방향/역방향)를 존중하되 너무 부정적이거나 불안감을 주는 표현은 피하고, 현실적이면서도 따뜻한 조언을 2~3문장 이내의 한글로 전달하세요.\n\n카드: ${cardName}\n설명: ${cardDesc}\n방향: ${orientation}\n질문: ${userQuestion || '오늘의 운세'}\n\n위 정보를 참고해, 카드의 본래 의미와 방향을 바탕으로 운세 메시지를 작성하세요. 불필요한 서문, 면책 조항, 과도한 설명 없이 오직 운세 메시지만 출력하세요.`;
+            const apiKey = process.env.GEMINI_API_KEY;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+            const response = await fetchFromNode(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                            parts: [{ text: prompt }]
+                        }]
+                }),
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                logger.error("API call failed", { status: response.status, text: errorText });
+                res.status(response.status).send(errorText);
+                return;
+            }
+            const data = await response.json();
+            // Gemini 응답의 날것 텍스트와 전체 데이터를 모두 로그로 남김
+            let rawText = '';
+            try {
+                rawText = ((_e = (_d = (_c = (_b = (_a = data.candidates) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.content) === null || _c === void 0 ? void 0 : _c.parts) === null || _d === void 0 ? void 0 : _d[0]) === null || _e === void 0 ? void 0 : _e.text) || '';
+                logger.info('Gemini Raw Response Received:', { rawText });
+                logger.info('Gemini Raw Response Full Data:', { data });
+                if (!rawText) {
+                    logger.warn('Gemini 응답이 비어 있습니다.', { data });
                 }
             }
+            catch (e) {
+                logger.error('Gemini 응답 파싱 실패', e);
+            }
+            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+                logger.error("Invalid response structure from Gemini API", { data });
+                res.status(500).send('Invalid API response structure');
+                return;
+            }
+            const interpretation = data.candidates[0].content.parts[0].text.trim();
+            res.json({ interpretation });
         }
-        console.log('Daily tarot reset completed successfully');
-    }
-    catch (error) {
-        console.error('Daily tarot reset failed:', error);
-        throw error;
-    }
+        catch (error) {
+            logger.error("Error in geminiInterpret", error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
 });
-exports.sendInquiryReply = (0, https_1.onCall)({ region: "asia-northeast3" }, async (request) => {
-    const { inquiryId, replyContent, recipientEmail, originalTitle, originalContent } = request.data;
-    if (!inquiryId || !replyContent || !recipientEmail || !originalTitle || !originalContent) {
-        throw new Error('Missing required parameters');
-    }
-    const msg = {
-        to: recipientEmail,
-        from: process.env.SENDGRID_SENDER_EMAIL || 'noreply@astrotarot.com',
-        subject: `[아스트라 타로] 문의하신 내용에 대한 답변입니다: ${originalTitle}`,
-        html: `
-      <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
-        <h2 style="color: #333;">문의하신 내용에 대한 답변입니다</h2>
-        
-        <div style="margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 5px;">
-          <h3 style="margin: 0 0 10px 0; color: #666;">문의 내용</h3>
-          <p style="margin: 0; white-space: pre-wrap;">${originalContent}</p>
-        </div>
-        
-        <div style="margin: 20px 0; padding: 15px; background: #e8f0fe; border-radius: 5px;">
-          <h3 style="margin: 0 0 10px 0; color: #1a73e8;">답변 내용</h3>
-          <p style="margin: 0; white-space: pre-wrap;">${replyContent}</p>
-        </div>
-        
-        <p style="color: #666; font-size: 14px; margin-top: 30px;">
-          추가 문의사항이 있으시면 언제든 문의하기를 통해 문의해 주세요.<br>
-          감사합니다.
-        </p>
-      </div>
-    `,
-    };
-    try {
-        await sgMail.send(msg);
-        return { success: true };
-    }
-    catch (error) {
-        console.error('SendGrid error:', error);
-        throw new Error('Failed to send email');
-    }
+// 여러 장의 카드 해석 (심층 타로용)
+exports.interpretMultipleCards = onRequest({ region: 'asia-northeast3', timeoutSeconds: 300 }, (req, res) => {
+    cors(req, res, async () => {
+        var _a, _b, _c, _d, _e;
+        try {
+            const { cards, question } = req.body;
+            if (!cards || !question || !Array.isArray(cards) || cards.length === 0) {
+                res.status(400).send('Cards (array) and question (string) are required');
+                return;
+            }
+            const cardInfo = cards.map((c) => `${c.name}(${c.orientation})`).join(', ');
+            // const cardDetails = cards.map((c: any) => `카드: ${c.name}, 방향: ${c.orientation}, 기본 의미: ${c.desc}`).join('\n');
+            const prompt = `당신은 사용자에게 타로 해석을 제공하는 전문 리더입니다.\n응답은 오직 다음 Markdown 섹션들로만 구성되어야 합니다.\n어떠한 서문, 결론, 추가 설명, 또는 불필요한 단어도 허용되지 않습니다.\n모든 섹션(#### 해석 요약, #### 상세 해석, #### 조언/핵심 메시지)은 반드시 포함되어야 합니다.\n내용이 없더라도 '(없음)'으로 표시해주세요.\n헤더 레벨은 오직 #### 만 사용해야 합니다.\n\n아래는 출력 예시입니다.\n\n질문: 직장 언제 취하나\n카드: 컵4(upright)\n#### 해석 요약\n기회가 곧 다가오지만, 현재는 내면에 집중할 시기입니다.\n#### 상세 해석\n컵4 카드는 권태와 무관심을 의미합니다. 지금은 주변의 기회를 잘 인식하지 못할 수 있습니다. 하지만 내면을 돌아보고 마음을 정리하면 곧 좋은 소식이 찾아올 것입니다.\n#### 조언/핵심 메시지\n지금은 조급해하지 말고, 자신을 돌보는 시간을 가지세요.\n\n---\n질문: 연애운\n카드: 연인(역방향)\n#### 해석 요약\n관계에 오해가 생길 수 있습니다.\n#### 상세 해석\n연인 카드의 역방향은 소통의 단절이나 감정의 혼란을 의미합니다. 상대방과의 대화가 중요합니다.\n#### 조언/핵심 메시지\n솔직한 마음을 표현하세요.\n\n---\n\n아래는 실제 해석에 사용할 정보입니다.\n\n질문: ${question}\n카드: ${cardInfo}\n\n#### 해석 요약\n(여기에 2-3문장으로 전체 해석의 핵심을 요약)\n\n#### 상세 해석\n(여기에 전체적인 상황 분석, 카드 간의 연결고리, 문제의 원인, 과정, 미래의 가능성 등을 구체적으로 서술)\n\n#### 조언/핵심 메시지\n(여기에 사용자가 실천할 수 있는 현실적인 조언이나, 이 리딩의 가장 중요한 메시지를 명확하게 전달)\n`;
+            const apiKey = process.env.GEMINI_API_KEY;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+            const response = await fetchFromNode(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                            parts: [{ text: prompt }]
+                        }]
+                }),
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                logger.error("API call failed", { status: response.status, text: errorText });
+                res.status(response.status).send(errorText);
+                return;
+            }
+            const data = await response.json();
+            // Gemini 응답의 날것 텍스트와 전체 데이터를 모두 로그로 남김
+            let rawText = '';
+            try {
+                rawText = ((_e = (_d = (_c = (_b = (_a = data.candidates) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.content) === null || _c === void 0 ? void 0 : _c.parts) === null || _d === void 0 ? void 0 : _d[0]) === null || _e === void 0 ? void 0 : _e.text) || '';
+                logger.info('Gemini Raw Response Received:', { rawText });
+                logger.info('Gemini Raw Response Full Data:', { data });
+                if (!rawText) {
+                    logger.warn('Gemini 응답이 비어 있습니다.', { data });
+                }
+            }
+            catch (e) {
+                logger.error('Gemini 응답 파싱 실패', e);
+            }
+            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+                logger.error("Invalid response structure from Gemini API", { data });
+                res.status(500).send('Invalid API response structure');
+                return;
+            }
+            const interpretation = data.candidates[0].content.parts[0].text.trim();
+            res.json({ interpretation });
+        }
+        catch (error) {
+            logger.error("Error in interpretMultipleCards", error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
 });
 //# sourceMappingURL=index.js.map

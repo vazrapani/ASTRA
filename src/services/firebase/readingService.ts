@@ -68,4 +68,32 @@ export async function getAllReadings(): Promise<Reading[]> {
   const q = query(readingsRef, orderBy('createdAt', 'desc'));
   const snap = await getDocs(q);
   return snap.docs.map(d => d.data() as Reading);
+}
+
+// 별점 저장 (1~5점)
+export async function setReadingRating(readingId: string, userId: string, rating: number) {
+  const ref = doc(db, 'readings', readingId, 'ratings', userId);
+  await setDoc(ref, {
+    userId,
+    rating,
+    createdAt: Date.now(),
+  });
+}
+
+// 별점 전체 조회 (평균/개수 계산용)
+export async function getReadingRatings(readingId: string): Promise<{ ratings: number[]; avg: number; count: number; userRatings: { [userId: string]: number } }> {
+  const col = collection(db, 'readings', readingId, 'ratings');
+  const snap = await getDocs(col);
+  const ratings: number[] = [];
+  const userRatings: { [userId: string]: number } = {};
+  snap.forEach(doc => {
+    const data = doc.data();
+    if (typeof data.rating === 'number') {
+      ratings.push(data.rating);
+      userRatings[data.userId] = data.rating;
+    }
+  });
+  const count = ratings.length;
+  const avg = count > 0 ? ratings.reduce((a, b) => a + b, 0) / count : 0;
+  return { ratings, avg, count, userRatings };
 } 

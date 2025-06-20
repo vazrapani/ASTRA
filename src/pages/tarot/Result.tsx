@@ -9,6 +9,18 @@ import styles from './Result.module.css';
 import FriendSelectModal from '../../components/FriendSelectModal';
 import { useHistory } from 'react-router-dom';
 
+// 마크다운 파싱을 위한 간단한 함수
+const parseMarkdown = (text: string) => {
+  const sections: { [key: string]: string } = {};
+  // 정규식: #### 제목\n(내용)\n#### ...
+  const regex = /#### (.*?)\n([\s\S]*?)(?=\n#### |$)/g;
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    sections[match[1].trim()] = match[2].trim();
+  }
+  return sections;
+};
+
 interface ResultProps {
   unreadCount: number;
   onClickNotification: () => void;
@@ -16,11 +28,12 @@ interface ResultProps {
 
 const Result: React.FC<ResultProps> = ({ unreadCount, onClickNotification }) => {
   const question = useSelector((state: RootState) => state.tarot.question);
-  const category = useSelector((state: RootState) => state.tarot.category);
   const spread = useSelector((state: RootState) => state.tarot.spread);
   const selectedCards = useSelector((state: RootState) => state.tarot.selectedCards);
-  const interpretation = useSelector((state: RootState) => state.tarot.interpretation);
+  const interpretation = useSelector((state: RootState) => state.tarot.interpretation) || '';
+  // interpretation 값 파싱 직전 콘솔 출력
   console.log('interpretation:', interpretation);
+  const parsedInterpretation = parseMarkdown(interpretation);
   const user = useSelector((state: RootState) => state.auth.user);
   const savedRef = useRef(false);
   const [showFriendModal, setShowFriendModal] = React.useState(false);
@@ -34,13 +47,13 @@ const Result: React.FC<ResultProps> = ({ unreadCount, onClickNotification }) => 
   ];
 
   useEffect(() => {
-    if (!user?.uid || !question || !selectedCards.length || savedRef.current) return;
+    if (!user?.id || !question || !selectedCards.length || savedRef.current) return;
     // Firestore에 기록 저장
     const readingId = uuidv4();
     const now = Date.now();
     const reading = {
       readingId,
-      userId: user.uid,
+      userId: user.id,
       initialQuestion: question,
       spreadType: spread,
       cardsDrawn: selectedCards.map((c: any, idx: number) => ({
@@ -57,13 +70,12 @@ const Result: React.FC<ResultProps> = ({ unreadCount, onClickNotification }) => 
           timestamp: now,
         },
       ],
-      category: category || '기타',
       createdAt: now,
       updatedAt: now,
     };
-    addReading(user.uid, reading);
+    addReading(user.id, reading);
     savedRef.current = true;
-  }, [user, question, category, spread, selectedCards, interpretation]);
+  }, [user, question, spread, selectedCards, interpretation]);
 
   const handleShare = () => {
     setShowFriendModal(true);
@@ -81,16 +93,19 @@ const Result: React.FC<ResultProps> = ({ unreadCount, onClickNotification }) => 
         sharedReadingId: uuidv4(),
         originalReadingId: 'TODO',
         sharedTurnIndex: 0,
-        sharerUid: user.uid,
+        sharerUid: user.id,
         receiverUids: [friendId],
         sharedAt: Date.now(),
         sharedInterpretationContent: interpretation,
         ratings: [],
         comments: [],
         emojis: [],
+        question: question,
+        card: selectedCards,
+        type: 'spread',
       };
       console.log('공유 데이터:', sharedReading);
-      await setSharedReading(sharedReading);
+      await import('../../services/firebase/readingService').then(mod => mod.setSharedReadingV2(sharedReading));
       console.log('공유 성공!');
       alert('친구에게 해석이 성공적으로 공유되었습니다!');
       setShowFriendModal(false);
@@ -113,7 +128,7 @@ const Result: React.FC<ResultProps> = ({ unreadCount, onClickNotification }) => 
           </IonCardHeader>
           <IonCardContent>
             <IonText color="primary">{question ? `"${question}"` : '질문이 입력되지 않았습니다.'}</IonText>
-            <div className={styles.categoryInfo}>카테고리: {category || '미선택'} / 스프레드: {spread || '미선택'}</div>
+            <div className={styles.categoryInfo}>스프레드: {spread || '미선택'}</div>
           </IonCardContent>
         </IonCard>
         <IonCard color="light">
@@ -137,7 +152,7 @@ const Result: React.FC<ResultProps> = ({ unreadCount, onClickNotification }) => 
             <IonCardTitle>해석 요약</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
-            <IonText>이직에 대한 긍정적인 에너지가 느껴집니다. 새로운 시작이 당신에게 좋은 기회를 가져다줄 것입니다.</IonText>
+            <IonText>{parsedInterpretation['해석 요약'] || '해석을 불러오는 중입니다...'}</IonText>
           </IonCardContent>
         </IonCard>
         <IonCard color="light">
@@ -145,8 +160,8 @@ const Result: React.FC<ResultProps> = ({ unreadCount, onClickNotification }) => 
             <IonCardTitle>상세 해석</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
-            <IonText>
-              더 푸울(정방향)은 새로운 도전과 순수한 열정을 의미합니다. 더 매지션(역방향)은 준비 부족이나 혼란을 경고합니다. 더 하이프리스트리스(정방향)는 직관을 따르라는 메시지를 줍니다. 전체적으로, 신중한 준비와 내면의 소리에 귀 기울인다면 좋은 결과를 얻을 수 있습니다.
+            <IonText style={{ whiteSpace: 'pre-wrap' }}>
+              {parsedInterpretation['상세 해석'] || ''}
             </IonText>
           </IonCardContent>
         </IonCard>
@@ -155,7 +170,7 @@ const Result: React.FC<ResultProps> = ({ unreadCount, onClickNotification }) => 
             <IonCardTitle>조언/핵심 메시지</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
-            <IonText color="primary">충분한 준비와 자기 신뢰가 필요합니다. 직관을 믿고 도전해보세요!</IonText>
+            <IonText color="primary">{parsedInterpretation['조언/핵심 메시지'] || ''}</IonText>
           </IonCardContent>
         </IonCard>
         <IonCard color="light">

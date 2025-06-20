@@ -15,7 +15,7 @@ import {
 } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store';
-import { setDailyTarotResult } from '../../store/slices/tarotSlice';
+import { setDailyTarotResult, setQuestion, setSpread } from '../../store/slices/tarotSlice';
 import tarotService from '../../services/firebase/tarotService';
 import { getRandomDeck, getRandomCard, getRandomOrientation } from '../../utils/tarotCards';
 import CommonHeader from '../../components/CommonHeader';
@@ -35,9 +35,10 @@ const TarotMain: React.FC<TarotMainProps> = ({ unreadCount = 0, onClickNotificat
 
   useEffect(() => {
     const checkDailyStatus = async () => {
-      if (!user?.uid) return;
+      if (!user?.id) return;
       try {
-        const status = await tarotService.getDailyTarotStatus(user.uid);
+        const status = await tarotService.getDailyTarotStatus(user.id);
+        console.log('[타로메인] getDailyTarotStatus:', status);
         dispatch(setDailyTarotResult(status));
       } catch (error) {
         console.error('Error checking daily tarot status:', error);
@@ -51,11 +52,11 @@ const TarotMain: React.FC<TarotMainProps> = ({ unreadCount = 0, onClickNotificat
     };
 
     checkDailyStatus();
-  }, [user?.uid, dispatch, present]);
+  }, [user?.id, dispatch, present]);
 
   const handleDailyTarotClick = async () => {
-    if (!user?.uid) return;
-    
+    if (!user?.id) return;
+    console.log('[타로메인] handleDailyTarotClick 진입, isDailyAvailable:', isDailyAvailable);
     try {
       if (isDailyAvailable) {
         // 새로운 타로 카드 뽑기
@@ -67,15 +68,16 @@ const TarotMain: React.FC<TarotMainProps> = ({ unreadCount = 0, onClickNotificat
           : card.meanings.reversed;
 
         const result = await tarotService.saveDailyTarotReading(
-          user.uid,
+          user.id,
           deck,
           card,
           orientation,
           interpretation
         );
-        
+        console.log('[타로메인] saveDailyTarotReading result:', result);
         dispatch(setDailyTarotResult({ isDailyAvailable: false, result }));
       }
+      console.log('[타로메인] history.push(/tabs/tarot/daily)');
       history.push('/tabs/tarot/daily');
     } catch (error) {
       console.error('Error handling daily tarot:', error);
@@ -86,6 +88,17 @@ const TarotMain: React.FC<TarotMainProps> = ({ unreadCount = 0, onClickNotificat
         color: 'danger'
       });
     }
+  };
+
+  const handleDeepTarotClick = () => {
+    console.log('[타로메인] 심층 타로 버튼 클릭');
+    // 심층 타로 시작 전 상태 초기화
+    dispatch(setQuestion(''));
+    dispatch(setSpread(''));
+    
+    console.log('[타로메인] /tabs/tarot/spread로 이동 시도');
+    history.push('/tabs/tarot/spread');
+    console.log('[타로메인] 이동 완료');
   };
 
   return (
@@ -116,12 +129,21 @@ const TarotMain: React.FC<TarotMainProps> = ({ unreadCount = 0, onClickNotificat
                 <IonIcon icon={chevronForward} slot="icon-only" />
               </IonButton>
             </IonItem>
-            <IonItem button routerLink="/tabs/tarot/spread" className={styles.spreadItem} detail={true}>
-              <IonIcon icon={gridOutline} slot="start" />
+            <IonItem 
+              button
+              className={styles.spreadItem}
+              detail={false}
+              onClick={handleDeepTarotClick}
+            >
               <IonLabel>
-                <h2>타로 스프레드</h2>
-                <p>다양한 스프레드로 타로 리딩을 시작하세요</p>
+                <div className={styles.labelContainer}>
+                  <h2>심층 타로</h2>
+                </div>
+                <p>다양한 스프레드로 깊이 있는 타로 리딩을 시작하세요</p>
               </IonLabel>
+              <IonButton fill="clear" slot="end">
+                <IonIcon icon={chevronForward} slot="icon-only" />
+              </IonButton>
             </IonItem>
             {/* 필요시 추가 기능(내 기록 등)도 아래에 추가 가능 */}
           </IonList>

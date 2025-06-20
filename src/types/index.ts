@@ -142,6 +142,9 @@ export interface SharedReadingV2 {
   ratings: SharedReadingRating[];
   comments: SharedReadingComment[];
   emojis: SharedReadingEmoji[];
+  question?: string; // 질문(일일 타로는 undefined)
+  card?: any; // 뽑힌 카드 정보(타입 엄격화 필요시 TarotCard 등으로 지정)
+  type?: string; // 'daily' | 'spread' 등
 }
 
 export interface Inquiry {

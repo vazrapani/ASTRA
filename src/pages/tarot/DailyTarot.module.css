@@ -2,6 +2,15 @@
   padding: 16px;
   max-width: 600px;
   margin: 0 auto;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.container::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent;
+  display: none;
 }
 
 .header {
@@ -149,6 +158,12 @@
   margin-top: 1.5rem;
   font-size: 1rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE, Edge */
+}
+.interpretation::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
 
 .interpretation h2 {

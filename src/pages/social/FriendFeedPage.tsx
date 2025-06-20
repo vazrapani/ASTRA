@@ -5,6 +5,7 @@ import styles from './FriendFeed.module.css';
 import defaultProfileImage from '../../assets/images/default-profile.png';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
+import TarotSharedCard from '../../components/TarotSharedCard';
 
 interface Reading {
   sharedReadingId: string;
@@ -16,6 +17,8 @@ interface Reading {
     user: string;
     text: string;
   }>;
+  card?: string;
+  type?: string;
 }
 
 interface Friend {
@@ -34,6 +37,7 @@ const FriendFeedPage: React.FC = () => {
   const [feeds, setFeeds] = useState<Reading[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<'received' | 'sent'>('received');
 
   useEffect(() => {
     const fetchFriendAndFeeds = async () => {
@@ -56,8 +60,8 @@ const FriendFeedPage: React.FC = () => {
           status: userData.status || 'active',
         });
 
-        // 피드(공유된 해석) 가져오기 (예: sharedReadings 컬렉션에서 해당 userId의 피드)
-        const feedsRef = collection(db, 'sharedReadings');
+        // 피드(공유된 해석) 가져오기 (sharedReadingsV2 컬렉션에서 해당 userId의 피드)
+        const feedsRef = collection(db, 'sharedReadingsV2');
         const q = query(feedsRef, where('receiverUids', 'array-contains', friendId));
         const feedsSnap = await getDocs(q);
         const feedList: Reading[] = feedsSnap.docs.map(docSnap => {
@@ -66,9 +70,11 @@ const FriendFeedPage: React.FC = () => {
             sharedReadingId: docSnap.id,
             date: d.date || '',
             question: d.question || '',
-            summary: d.summary || '',
+            summary: d.sharedInterpretationContent || '',
             emojis: d.emojis || [],
             comments: d.comments || [],
+            card: d.card || null,
+            type: d.type || '',
           };
         });
         setFeeds(feedList);
@@ -93,13 +99,16 @@ const FriendFeedPage: React.FC = () => {
       </IonHeader>
       <IonContent>
         <div className={styles.pageContainer}>
+          <div style={{display:'flex',justifyContent:'center',margin:'16px 0'}}>
+            <button onClick={()=>setTab('received')} style={{padding:'8px 24px',borderRadius:8,background:tab==='received'?'#6c47ff':'#23272f',color:'#fff',border:'none',marginRight:8,fontWeight:600}}>받은 공유</button>
+            <button onClick={()=>setTab('sent')} style={{padding:'8px 24px',borderRadius:8,background:tab==='sent'?'#6c47ff':'#23272f',color:'#fff',border:'none',fontWeight:600}}>보낸 공유</button>
+          </div>
           {loading ? (
             <div style={{textAlign:'center',marginTop:40}}><IonSpinner name="crescent" /> 불러오는 중...</div>
           ) : error ? (
             <div className={styles.emptyMsg}>{error}</div>
           ) : friend && (
             <>
-              {/* 상단: 친구 정보 */}
               <div className={styles.friendHeader}>
                 <img 
                   src={friend.profileImage && String(friend.profileImage).trim() !== "" ? friend.profileImage : DEFAULT_PROFILE_IMAGE}
@@ -109,29 +118,31 @@ const FriendFeedPage: React.FC = () => {
                 />
                 <div className={styles.nickname}>{friend.nickname}</div>
               </div>
-              {/* 피드 목록 */}
               <div className={styles.feedList}>
-                {feeds.map((reading: Reading) => (
-                  <div key={reading.sharedReadingId} className={styles.feedCard}>
-                    <div className={styles.feedDate}>{reading.date}</div>
-                    <div className={styles.feedQuestion}>{reading.question}</div>
-                    <div className={styles.feedSummary}>{reading.summary}</div>
-                    <div className={styles.feedEmojis}>
-                      {reading.emojis.map((emoji: string, index: number) => (
-                        <span key={index}>{emoji}</span>
-                      ))}
+                {feeds.map((reading: Reading) => {
+                  // 대표 타로카드 추출
+                  let mainCard = null;
+                  if (Array.isArray(reading.card) && reading.card.length > 0) mainCard = reading.card[0];
+                  else if (reading.card) mainCard = reading.card;
+                  // 해석 일부 추출
+                  const interpretationPreview = (reading.summary || '').slice(0, 40) + ((reading.summary || '').length > 40 ? '...' : '');
+                  return (
+                    <div key={reading.sharedReadingId} className={styles.feedCard} style={{cursor:'pointer'}} onClick={() => history.push(`/tabs/social/feed-detail/${reading.sharedReadingId}`)}>
+                      {/* 날짜 */}
+                      <div className={styles.feedDate}>{reading.date}</div>
+                      {/* 대표 타로카드: TarotSharedCard 재사용 */}
+                      {mainCard && (
+                        <div style={{marginBottom:8, display:'flex', justifyContent:'center'}}>
+                          <TarotSharedCard card={mainCard} orientation={mainCard.direction || mainCard.orientation || 'upright'} size="small" />
+                        </div>
+                      )}
+                      {/* 해석 일부 */}
+                      <div style={{margin:'8px 0',color:'#ffd700',fontSize:15}}>{interpretationPreview}</div>
                     </div>
-                    <div className={styles.feedComments}>
-                      {reading.comments.map((comment, index: number) => (
-                        <span key={index}>{comment.user}: {comment.text} </span>
-                      ))}
-                    </div>
-                    <button className={styles.detailBtn}>상세보기</button>
-                  </div>
-                ))}
+                  );
+                })}
                 {feeds.length === 0 && <div className={styles.emptyMsg}>아직 공유된 해석이 없습니다.</div>}
               </div>
-              {/* 타로 뽑기 버튼/안내문구 */}
               <div className={styles.bottomBox}>
                 <button className={styles.tarotBtn}>OO님과 우정 타로 뽑기</button>
                 <button className={styles.tarotBtn2}>OO님과 애정 타로 뽑기</button>

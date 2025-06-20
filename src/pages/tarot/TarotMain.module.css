@@ -207,25 +207,29 @@
 }
 
 .spreadItem {
-  --background: var(--ion-color-light);
-  --border-radius: 8px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
   margin-bottom: 8px;
+  --background: var(--ion-color-light);
+  --border-radius: 10px;
+}
+
+.spreadItem h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.spreadItem p {
+  font-size: 14px;
+  color: var(--ion-color-medium);
+  margin: 4px 0 0 0;
 }
 
 .spreadItem ion-icon {
   color: var(--ion-color-primary);
-}
-
-.spreadItem h2 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.spreadItem p {
-  font-size: 0.9rem;
-  color: var(--ion-color-medium);
-  margin: 4px 0 0 0;
 }
 
 .menuSection {

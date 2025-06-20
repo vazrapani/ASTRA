@@ -2,6 +2,11 @@
   "functions": {
     "source": "functions"
   },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    }
+  },
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
@@ -14,6 +19,18 @@
       "**/node_modules/**"
     ],
     "rewrites": [
+      {
+        "source": "/api/interpretDailyTarot",
+        "function": "geminiInterpret"
+      },
+      {
+        "source": "/api/analyzeQuestion",
+        "function": "analyzeQuestion"
+      },
+      {
+        "source": "/api/interpretMultipleCards",
+        "function": "interpretMultipleCards"
+      },
       {
         "source": "**",
         "destination": "/index.html"
