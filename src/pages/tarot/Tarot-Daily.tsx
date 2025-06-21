@@ -61,25 +61,30 @@ const TarotDaily: React.FC<TarotDailyProps> = ({ unreadCount = 0, onClickNotific
   }, []);
 
   useEffect(() => {
-    // 1. 오늘의 타로를 이미 봤는지 확인
-    if (!isDailyAvailable && dailyResult) {
-      // 이미 본 결과가 있으면, 해당 결과를 바로 표시
-      setSpreadCards([{ card: dailyResult.card, orientation: dailyResult.orientation }]);
-      setGeminiInterpretation(dailyResult.interpretation);
-      setSelectedCardIndex(0); // 결과 카드가 첫 번째이자 유일한 카드
-      setSelectedDeck(dailyResult.deck); // 결과 덱도 상태에 저장
-      setView('revealed'); // 바로 결과 표시 상태로 전환
-    } else {
-      // 오늘의 타로를 아직 안 봤으면, 덱 선택 UI 표시
-      setView('deck_selection'); 
-    }
+    // [임시] 개발 및 향후 관리자 기능 구현을 위해 일일 타로 제한을 항상 해제합니다.
+    // 추후 이 부분은 관리자 페이지에서 제어하는 기능으로 대체될 예정입니다.
+    setView('deck_selection'); 
     setIsLoading(false);
-  }, [isDailyAvailable, dailyResult]);
+  }, []); // 의존성 배열을 비워, 컴포넌트 마운트 시 한 번만 실행되도록 합니다.
 
-  // 'initial' 상태에서 자동으로 'spread' 상태로 전환하던 로직(버그 원인)을 제거했습니다.
-  
+  useEffect(() => {
+    if (view === 'gathering') {
+      const timer = setTimeout(() => {
+        setView('spread');
+      }, 500); // 0.1초에서 0.5초로 변경하여 중앙 상태를 인지할 시간 확보
+      return () => clearTimeout(timer);
+    }
+    
+    // 'spread' 상태가 되면 애니메이션 종료를 감지
+    if (view === 'spread') {
+      const animationEndTimer = setTimeout(() => {
+        setIsAnimating(false);
+      }, 900); // getCardStyle의 transition 시간과 동일하게 설정
+      return () => clearTimeout(animationEndTimer);
+    }
+  }, [view]);
+
   const handleDeckSelect = (deck: DeckType) => {
-    // deck_selection 단계가 아니면 아무것도 하지 않음
     if (view !== 'deck_selection') return;
     
     // 이미 선택된 덱을 다시 클릭하면 선택 해제, 다른 덱을 클릭하면 선택 변경
@@ -89,18 +94,14 @@ const TarotDaily: React.FC<TarotDailyProps> = ({ unreadCount = 0, onClickNotific
   const handleDeckConfirm = () => {
     if (!selectedDeck) return;
     
-    setIsDeckConfirming(true); // 애니메이션 시작
-    startNewReading(selectedDeck); // 백그라운드에서 카드 데이터 미리 로드
+    setIsDeckConfirming(true);
+    startNewReading(selectedDeck);
 
-    // 1. 카드를 중앙에 모으는 상태로 먼저 변경
+    // 복잡한 setTimeout 제거. 0.8초 애니메이션은 CSS에서 처리.
+    // 애니메이션이 끝난 후 view를 gathering으로 변경.
     setTimeout(() => {
       setView('gathering');
-      
-      // 2. 아주 짧은 지연 후, 카드를 펼치는 상태로 변경하여 애니메이션 트리거
-      setTimeout(() => {
-        setView('spread');
-      }, 50); // React가 'gathering' 상태를 렌더링할 시간을 줌
-    }, 1000); // CSS 덱 선택 애니메이션 시간과 일치
+    }, 800);
   };
 
   const handleConfirm = async () => {
@@ -149,22 +150,11 @@ const TarotDaily: React.FC<TarotDailyProps> = ({ unreadCount = 0, onClickNotific
     if (isAnimating) return;
     
     setIsAnimating(true);
-    setView('gathering'); // 'initial' 대신 'gathering' 상태로 변경하여 카드 모으기 애니메이션을 명시적으로 호출
     setSelectedCardIndex(null);
-    
-    setTimeout(() => {
-      if (selectedDeck) {
-        startNewReading(selectedDeck); // 현재 선택된 덱으로 다시 뽑기
-      }
-      
-      // DOM 업데이트를 위한 짧은 지연 후 펼치기 애니메이션 시작
-      setTimeout(() => {
-        setView('spread');
-        setTimeout(() => {
-          setIsAnimating(false);
-        }, 900);
-      }, 50); 
-    }, 900); 
+    if(selectedDeck) {
+      startNewReading(selectedDeck);
+    }
+    setView('gathering');
   };
 
   const getCardStyle = (index: number): React.CSSProperties => {
@@ -172,10 +162,10 @@ const TarotDaily: React.FC<TarotDailyProps> = ({ unreadCount = 0, onClickNotific
     const isSelected = selectedCardIndex === index;
     const isConfirmed = view === 'confirmed' || view === 'flipping' || view === 'revealed';
 
-    let finalTransform = '';
+    let finalTransform = 'translate(-50%, -50%)'; // Default to center
     let opacity = 1;
     let zIndex = 5 - index;
-
+    
     if (isConfirmed) {
       if (isSelected) {
         finalTransform = 'translate(-50%, -95%) scale(1.7)';
@@ -195,22 +185,13 @@ const TarotDaily: React.FC<TarotDailyProps> = ({ unreadCount = 0, onClickNotific
       const selectionTransform = isSelected ? 'translateY(-35px) ' : '';
       finalTransform = `translate(-50%, -50%) ${selectionTransform}translate(${x}px, ${y}px) rotate(${dampenedRotation}deg)`;
       zIndex = isSelected ? 10 : 5 - index;
-    } else if (view === 'gathering') { // 'initial' 대신 'gathering' 상태를 명시적으로 확인
-      finalTransform = `translate(-50%, -50%) translate(0, ${-index * 2}px) rotate(0deg)`;
     }
-    
+
     return {
-      position: 'absolute',
-      left: '50%',
-      top: '50%',
-      width: 100,
-      height: 160,
-      transform: finalTransform,
-      zIndex,
       opacity,
-      transition: 'all 0.9s cubic-bezier(0.68, -0.55, 0.27, 1.55)',
-      cursor: isSpread ? 'pointer' : 'default',
-      transformStyle: 'preserve-3d',
+      zIndex,
+      transform: finalTransform,
+      cursor: view === 'spread' ? 'pointer' : 'default',
     };
   };
 
@@ -243,14 +224,14 @@ const TarotDaily: React.FC<TarotDailyProps> = ({ unreadCount = 0, onClickNotific
             <div className={styles.deckCardsWrapper}>
               <div
                 className={`${styles.deckCard} ${styles.riderWaiteDeck} ${
-                  selectedDeck === 'rider-waite' ? (isDeckConfirming ? styles.confirmed : styles.selected) : ''
-                } ${isDeckConfirming && selectedDeck !== 'rider-waite' ? styles.unselected : ''}`}
+                  isDeckConfirming ? styles.gathering : selectedDeck === 'rider-waite' ? styles.selected : ''
+                }`}
                 onClick={(e) => { e.stopPropagation(); if (!isDeckConfirming) handleDeckSelect('rider-waite'); }}
               />
               <div
                 className={`${styles.deckCard} ${styles.thothDeck} ${
-                  selectedDeck === 'thoth' ? (isDeckConfirming ? styles.confirmed : styles.selected) : ''
-                } ${isDeckConfirming && selectedDeck !== 'thoth' ? styles.unselected : ''}`}
+                  isDeckConfirming ? styles.gathering : selectedDeck === 'thoth' ? styles.selected : ''
+                }`}
                 onClick={(e) => { e.stopPropagation(); if (!isDeckConfirming) handleDeckSelect('thoth'); }}
               />
             </div>
@@ -282,22 +263,31 @@ const TarotDaily: React.FC<TarotDailyProps> = ({ unreadCount = 0, onClickNotific
             </p>
             <div
               className={styles.cardAnimationArea}
-              onClick={() => { if (view === 'spread' && !isDailyAvailable) setSelectedCardIndex(null); }}
+              onClick={() => {
+                if (view === 'spread') {
+                  setSelectedCardIndex(null);
+                }
+              }}
             >
               {isDailyAvailable ? (
                 spreadCards.map(({ card, orientation }, i) => (
                   <div
                     key={card.id + i}
+                    className={`${styles.cardWrapper} ${
+                      view === 'spread' && selectedCardIndex === i ? styles.selectedCard : ''
+                    }`}
                     style={getCardStyle(i)}
                     onClick={(e) => {
-                      if (view === 'spread') {
-                        e.stopPropagation();
-                        // 이미 선택된 카드를 다시 클릭하면 선택 해제, 아니면 선택
-                        setSelectedCardIndex(prev => prev === i ? null : i);
+                      if (view === 'spread') { 
+                        e.stopPropagation(); 
+                        setSelectedCardIndex(prev => prev === i ? null : i); 
                       }
                     }}
                   >
-                    <div className={styles.cardInner} style={{transform: (view === 'flipping' || view === 'revealed') && selectedCardIndex === i ? 'rotateY(180deg)' : 'none' }}>
+                    <div
+                      className={styles.cardInner}
+                      style={{transform: (view === 'flipping' || view === 'revealed') && selectedCardIndex === i ? 'rotateY(180deg)' : 'none' }}
+                    >
                       <div className={`${styles.cardFace} ${styles.cardBack}`} />
                       <div className={`${styles.cardFace} ${styles.cardFront}`}>
                         <img src={generateTempCardImage(card, orientation)} alt={card.nameKo} style={{width: '100%', height: '100%', borderRadius: 10}}/>
@@ -328,7 +318,7 @@ const TarotDaily: React.FC<TarotDailyProps> = ({ unreadCount = 0, onClickNotific
             </div>
             
             {isDailyAvailable && (
-              <div className={`${styles.buttonContainer} ${view !== 'spread' ? styles.fadeOut : ''}`}>
+              <div className={styles.buttonContainer}>
                 {(view === 'spread') && (
                   <>
                     <button onClick={handleShuffle} disabled={isAnimating || selectedCardIndex !== null}>다시 섞기</button>
