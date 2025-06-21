@@ -16,7 +16,6 @@ import axios from 'axios';
 import { 
   getMultipleRandomCards,
   getRandomOrientation,
-  generateTempCardImage,
   deckConfigs,
 } from '../../utils/tarotCards';
 import { DailyTarotResult, CardOrientation, DeckType, TarotCard } from '../../types/tarot';
@@ -290,7 +289,7 @@ const TarotDaily: React.FC<TarotDailyProps> = ({ unreadCount = 0, onClickNotific
                     >
                       <div className={`${styles.cardFace} ${styles.cardBack}`} />
                       <div className={`${styles.cardFace} ${styles.cardFront}`}>
-                        <img src={generateTempCardImage(card, orientation)} alt={card.nameKo} style={{width: '100%', height: '100%', borderRadius: 10}}/>
+                        <img src={'/assets/card_front.png'} alt={card.nameKo} style={{width: '100%', height: '100%', borderRadius: 10}}/>
                       </div>
                     </div>
                     {view === 'revealed' && selectedCardIndex === i && (
@@ -306,7 +305,7 @@ const TarotDaily: React.FC<TarotDailyProps> = ({ unreadCount = 0, onClickNotific
                    <div className={styles.cardInner} style={{transform: 'rotateY(180deg)'}}>
                       <div className={`${styles.cardFace} ${styles.cardBack}`} />
                       <div className={`${styles.cardFace} ${styles.cardFront}`}>
-                        <img src={generateTempCardImage(dailyResult.card, dailyResult.orientation)} alt={dailyResult.card.nameKo} style={{width: '100%', height: '100%', borderRadius: 10}}/>
+                        <img src={'/assets/card_front.png'} alt={dailyResult.card.nameKo} style={{width: '100%', height: '100%', borderRadius: 10}}/>
                       </div>
                     </div>
                     <div className={styles.cardInfoText}>

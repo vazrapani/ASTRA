@@ -22,8 +22,7 @@ import {
 import {
   getRandomDeck,
   getRandomCard,
-  getRandomOrientation,
-  generateTempCardImage
+  getRandomOrientation
 } from '../../utils/tarotCards';
 
 const MAX_RETRIES = 3;
@@ -127,8 +126,7 @@ class TarotService {
         deck,
         card,
         orientation,
-        interpretation,
-        tempImageUrl: generateTempCardImage(card, orientation)
+        interpretation
       };
 
       await setDoc(dailyTarotRef, result);

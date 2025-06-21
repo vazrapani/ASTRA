@@ -19,7 +19,7 @@ export interface TarotCard {
   arcana: ArcanaType;
   suit?: MinorSuit;
   imageUrl: string;
-  tempImageUrl: string; // 임시 이미지 URL
+  tempImageUrl?: string; // 임시 이미지 URL
   meanings: {
     upright: string;
     reversed: string;
@@ -48,7 +48,7 @@ export interface DailyTarotResult {
   card: TarotCard;
   orientation: CardOrientation;
   interpretation: string;
-  tempImageUrl: string;  // 임시 이미지 URL
+  tempImageUrl?: string;  // 임시 이미지 URL
 }
 
 // 타로 덱 설정
