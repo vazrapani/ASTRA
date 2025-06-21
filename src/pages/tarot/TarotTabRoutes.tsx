@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import { IonRouterOutlet } from '@ionic/react';
 import TarotMain from './TarotMain';
-import DailyTarot from './DailyTarot';
+import TarotDaily from './Tarot-Daily';
 import SpreadSelect from './SpreadSelect';
 import QuestionInput from './QuestionInput';
 import CardPick from './CardPick';
@@ -32,7 +32,7 @@ const TarotTabRoutes: React.FC = () => {
       }} />
       <Route exact path="/tabs/tarot/daily" render={() => {
         console.log('[TarotTabRoutes] 일일 타로 페이지 렌더링');
-        return <DailyTarot unreadCount={unreadCount} onClickNotification={handleNotificationClick} />;
+        return <TarotDaily unreadCount={unreadCount} onClickNotification={handleNotificationClick} />;
       }} />
       <Route exact path="/tabs/tarot/spread" render={() => {
         console.log('[TarotTabRoutes] 심층 타로 페이지 렌더링');

@@ -1,0 +1,363 @@
+/* 기존 DailyTarot.module.css 내용 복사 */
+.container {
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+.interpretation {
+  background: #23272f;
+  color: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  font-size: 1rem;
+}
+.interpretation h2 {
+  margin: 0 0 16px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+.interpretation p {
+  margin: 0;
+  line-height: 1.6;
+}
+.resultContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.spinnerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  color: #888;
+}
+
+/* 
+  ========================================
+  새로운 Tarot-Daily.tsx를 위한 스타일
+  ========================================
+*/
+
+/* 전체 카드 뽑기 영역 컨테이너 */
+.pickingContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+  padding: 48px 16px 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 상단 안내 문구 */
+.pickingHelperText {
+  color: #888;
+  font-size: 1.1rem;
+  margin-bottom: 24px;
+  transition: opacity 0.5s, transform 0.5s;
+  text-align: center;
+}
+
+/* 카드 선택 인터페이스 전체를 감싸는 컨테이너 */
+.cardSelectionContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* 카드 애니메이션이 일어나는 영역 */
+.cardAnimationArea {
+  position: relative;
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1000px;
+}
+
+/* 카드 뒤집기를 위한 내부 컨테이너 */
+.cardInner {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* 카드의 각 면 (앞/뒤) */
+.cardFace {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.cardBack {
+  background-image: url(/assets/card_back.png);
+  background-size: cover;
+}
+.cardFront {
+  transform: rotateY(180deg);
+  background-color: #fff;
+}
+
+/* 하단 버튼들을 감싸는 컨테이너 */
+.buttonContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  width: 100%;
+  padding-bottom: 24px;
+  transition: opacity 0.5s, transform 0.5s;
+}
+
+.buttonContainer button {
+  padding:10px 24px;
+  font-weight:600; 
+  font-size:1.1em;
+  border-radius:8px;
+  background:#6c47ff;
+  color:#fff;
+  border:none;
+  cursor:pointer;
+}
+.buttonContainer button:disabled {
+  background:#555;
+  cursor:not-allowed;
+}
+
+/* 2. 카드 정보 텍스트 스타일 추가 */
+.cardInfoText {
+  position: absolute;
+  bottom: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 90vw;
+  text-align: center;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px 16px;
+  border-radius: 16px;
+  animation: fadeIn 0.5s ease-in-out 0.2s forwards;
+  opacity: 0;
+  display: flex;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+/* 해석 영역 */
+.interpretation {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 12px;
+  animation: fadeIn 1s ease-in-out forwards;
+  max-height: 40%;
+  overflow-y: auto;
+}
+
+/* 사라지는 효과 */
+.fadeOut {
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+} 
+
+/* 
+  ========================================
+  덱 선택(Deck Selection) 화면 스타일
+  ========================================
+*/
+
+.deckSelectionContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.deckCardsWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px; /* 카드 사이 간격 */
+  margin: 24px 0;
+  flex-grow: 1; /* 남는 공간을 차지하여 버튼을 아래로 밀어냄 */
+  width: 100%;
+  position: relative; /* 자식 요소의 absolute 포지셔닝 기준 */
+  min-height: 220px; /* 애니메이션 중 컨테이너 높이 유지 */
+}
+
+.deckCard {
+  width: 120px;
+  height: 192px;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  border: 4px solid transparent;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  position: relative; 
+  overflow: hidden; 
+}
+
+.riderWaiteDeck,
+.thothDeck {
+  background-image: url('/assets/card_back.png');
+  background-size: 110%; /* 이미지를 확대하여 가장자리 효과를 잘라냄 */
+  background-position: center;
+}
+
+.selected {
+  border-color: #8a6dff !important;
+  box-shadow: 0 6px 25px rgba(108, 71, 255, 0.5);
+  background-size: 100%;
+  transform: translateY(-15px);
+}
+
+.selectedDeckText {
+  color: #e0e0e0;
+  font-size: 1rem;
+  font-weight: 500;
+  height: 1.5rem; /* 선택/미선택 시 레이아웃 밀림 방지를 위해 높이 고정 */
+  margin-bottom: 8px;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.selectedDeckText.visible {
+  opacity: 1;
+}
+
+/* 
+  ========================================
+  덱 선택 완료 애니메이션 스타일
+  ========================================
+*/
+
+.deckCard.confirmed {
+  position: absolute; /* 애니메이션을 위해 위치 기준 변경 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.15);
+  animation: moveToCenter 1s forwards cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.deckCard.unselected {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+@keyframes moveToCenter {
+  from {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden; /* 컨테이너 밖으로 나가는 요소 숨김 */
+}
+
+.deckSelectionContainer,
+.cardPickingContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute; /* 두 컨테이너를 같은 위치에 겹침 */
+  top: 0;
+  left: 0;
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none; /* 화면에 보이지 않을 때 클릭 방지 */
+  transform: translateY(10px);
+}
+
+.fadeOut {
+  opacity: 0 !important;
+  transition-duration: 0.5s !important;
+}
+
+.deckInfoContainer {
+  height: 70px; /* min-height 대신 고정 높이 사용 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 8px; /* 자식 요소 간의 간격을 margin 대신 gap으로 제어 */
+}
+
+.deckDescriptionText {
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: normal;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity 0.4s ease, transform 0.2s ease;
+  padding: 0 16px;
+  text-align: center;
+}
+
+.deckDescriptionText.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s ease, transform 0.2s ease;
+}
+
+.confirmed {
+  /* 선택 확정 후 중앙으로 이동하는 애니메이션 */
+  animation: moveToCenter 1s forwards cubic-bezier(0.4, 0, 0.2, 1);
+} 

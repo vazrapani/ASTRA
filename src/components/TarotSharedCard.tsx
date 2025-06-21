@@ -28,7 +28,7 @@ const TarotSharedCard: React.FC<TarotSharedCardProps> = ({
   const deckText = card.deck === 'rider-waite' ? '라이더-웨이트' : '토트';
   
   return (
-    <div className={`${styles.cardContainer} ${className} ${size === 'small' ? styles.cardSmall : ''}`}>
+    <div className={`${styles.cardContainer} ${className} ${size === 'small' ? styles.cardSmall : ''}`} style={{ width: '100%', height: '100%' }}>
       <div className={`${styles.cardBox} ${size === 'small' ? styles.cardBoxSmall : ''}`}>
         <div className={styles.cardContent}>
           <div className={styles.cardHeader}>

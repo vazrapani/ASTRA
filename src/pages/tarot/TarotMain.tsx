@@ -36,8 +36,16 @@ const TarotMain: React.FC<TarotMainProps> = ({ unreadCount = 0, onClickNotificat
   useEffect(() => {
     const checkDailyStatus = async () => {
       if (!user?.id) return;
+
+      // =================================================
+      // 개발용 임시 조치: 일일 타로 제한 해제
+      // 개발 완료 후 반드시 원상 복구해야 합니다.
+      dispatch(setDailyTarotResult({ isDailyAvailable: true, result: null }));
+      return; 
+      // =================================================
+
       try {
-        const status = await tarotService.getDailyTarotStatus(user.id);
+        const status = await tarotService.getDailyTarotStatus(user!.id);
         console.log('[타로메인] getDailyTarotStatus:', status);
         dispatch(setDailyTarotResult(status));
       } catch (error) {
@@ -57,37 +65,8 @@ const TarotMain: React.FC<TarotMainProps> = ({ unreadCount = 0, onClickNotificat
   const handleDailyTarotClick = async () => {
     if (!user?.id) return;
     console.log('[타로메인] handleDailyTarotClick 진입, isDailyAvailable:', isDailyAvailable);
-    try {
-      if (isDailyAvailable) {
-        // 새로운 타로 카드 뽑기
-        const deck = getRandomDeck();
-        const card = getRandomCard(deck);
-        const orientation = getRandomOrientation();
-        const interpretation = orientation === 'upright' 
-          ? card.meanings.upright 
-          : card.meanings.reversed;
-
-        const result = await tarotService.saveDailyTarotReading(
-          user.id,
-          deck,
-          card,
-          orientation,
-          interpretation
-        );
-        console.log('[타로메인] saveDailyTarotReading result:', result);
-        dispatch(setDailyTarotResult({ isDailyAvailable: false, result }));
-      }
-      console.log('[타로메인] history.push(/tabs/tarot/daily)');
-      history.push('/tabs/tarot/daily');
-    } catch (error) {
-      console.error('Error handling daily tarot:', error);
-      present({
-        message: '일일 타로를 처리하는 중 오류가 발생했습니다.',
-        duration: 2000,
-        position: 'bottom',
-        color: 'danger'
-      });
-    }
+    // 오늘의 타로 가능 여부와 관계없이, 결과 확인 또는 새로운 뽑기를 위해 페이지로 이동합니다.
+    history.push('/tabs/tarot/daily');
   };
 
   const handleDeepTarotClick = () => {

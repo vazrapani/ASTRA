@@ -8,7 +8,7 @@ export type CardOrientation = 'upright' | 'reversed';
 export type ArcanaType = 'major' | 'minor';
 
 // 마이너 아르카나 슈트
-export type MinorSuit = 'wands' | 'cups' | 'swords' | 'pentacles';
+export type MinorSuit = 'wands' | 'cups' | 'swords' | 'pentacles' | 'disks';
 
 // 기본 카드 인터페이스
 export interface TarotCard {

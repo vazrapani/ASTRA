@@ -195,3 +195,75 @@ exports.interpretMultipleCards = onRequest({ region: 'asia-northeast3', timeoutS
     }
   });
 });
+
+// 문의하기 (HTTP 요청, SendGrid 이메일 발송 포함)
+exports.submitInquiryHttp = onRequest(
+  { region: 'asia-northeast3', secrets: ["SENDGRID_API_KEY", "CONTACT_RECEIVER_EMAIL"] },
+  (req: any, res: any) => {
+    cors(req, res, async () => {
+      try {
+        const { email, title, content } = req.body;
+        if (!email || !title || !content) {
+          logger.error('submitInquiryHttp: Missing required fields', { body: req.body });
+          res.status(400).json({ error: '필수 항목이 누락되었습니다.' });
+          return;
+        }
+
+        // 1. Firestore에 문의 내용 저장
+        const inquiryRef = await admin.firestore().collection('inquiries').add({
+          email,
+          title,
+          content,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          status: 'received' // '대기' 대신 'received' 사용
+        });
+
+        // 2. SendGrid를 통해 이메일 발송
+        const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+        const CONTACT_RECEIVER_EMAIL = process.env.CONTACT_RECEIVER_EMAIL;
+
+        if (!SENDGRID_API_KEY || !CONTACT_RECEIVER_EMAIL) {
+          logger.error('submitInquiryHttp: SendGrid environment variables are not set.');
+          // 사용자에게는 실패 사실만 알리고, 서버 에러로 처리
+          res.status(500).json({ error: '문의를 처리하는 중 오류가 발생했습니다.' });
+          return;
+        }
+
+        const emailData = {
+          personalizations: [{
+            to: [{ email: CONTACT_RECEIVER_EMAIL }],
+            subject: `[Astra Tarot 문의] ${title}`
+          }],
+          from: { email: 'no-reply@astratarot.com', name: 'Astra Tarot' }, // 발신자 주소는 인증된 도메인/주소 사용
+          reply_to: { email: email, name: email }, // 답장받는 사람을 문의자 이메일로 설정
+          content: [{
+            type: 'text/plain',
+            value: `[문의자 정보]\n- 이메일: ${email}\n\n[문의 내용]\n- 제목: ${title}\n- 내용:\n${content}`
+          }]
+        };
+
+        const response = await fetchFromNode('https://api.sendgrid.com/v3/mail/send', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${SENDGRID_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(emailData)
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          logger.error('submitInquiryHttp: Failed to send email via SendGrid', { status: response.status, statusText: response.statusText, body: errorText });
+          // 이메일 발송이 실패해도 Firestore 저장은 성공했으므로 사용자에게는 성공으로 응답
+          // 다만, 내부적으로는 에러를 인지해야 함
+        }
+
+        res.status(200).json({ success: true, id: inquiryRef.id });
+
+      } catch (error) {
+        logger.error('submitInquiryHttp: An unexpected error occurred.', error);
+        res.status(500).json({ error: '문의 처리 중 예기치 않은 오류가 발생했습니다.' });
+      }
+    });
+  }
+);

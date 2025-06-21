@@ -30,10 +30,10 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/analyzeQuestion/, '/analyzeQuestion')
       },
-      '/api/interpretDailyTarot': {
+      '/api/geminiInterpret': {
         target: 'https://asia-northeast3-astrt-e152b.cloudfunctions.net',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/interpretDailyTarot/, '/geminiInterpret')
+        rewrite: (path) => path.replace(/^\/api\/geminiInterpret/, '/geminiInterpret')
       }
     }
   },
